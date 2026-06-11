@@ -82,6 +82,7 @@ model User {
   messagesSent     Message[]         @relation("MessagesSent")
   messagesReceived Message[]         @relation("MessagesReceived")
   refreshTokens    RefreshToken[]
+  chatSessions     ChatSession[]
 }
 
 model RefreshToken {
@@ -264,4 +265,35 @@ model Message {
   content    String
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())
+}
+
+model ChatSession {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String        @default("New Chat Session")
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id        String      @id @default(uuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String      // "user" or "assistant"
+  content   String
+  createdAt DateTime    @default(now())
+}
+
+model PricePrediction {
+  id              String   @id @default(uuid())
+  crop            String
+  quantity        Float
+  location        String
+  expectedPrice   Float
+  bestMarket      String
+  confidenceScore Float
+  trend           String   // "UP", "DOWN", "STABLE"
+  createdAt       DateTime @default(now())
 }
