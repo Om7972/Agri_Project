@@ -80,6 +80,7 @@ export default function Hero() {
             </a>
 
             <button
+              suppressHydrationWarning
               onClick={() => alert('Demo video loading...')}
               className="group flex items-center gap-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200"
             >

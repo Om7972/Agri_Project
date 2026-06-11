@@ -128,6 +128,7 @@ export default function Testimonials() {
           {/* Navigation Controls */}
           <div className="flex items-center gap-4 mt-6">
             <button
+              suppressHydrationWarning
               onClick={handlePrev}
               className="p-3 rounded-full border border-white/10 bg-white/5 text-slate-300 hover:text-white hover:border-teal-500/30 transition-all active:scale-90"
               aria-label="Previous testimonial"
@@ -139,6 +140,7 @@ export default function Testimonials() {
             <div className="flex gap-2">
               {testimonialsData.map((_, idx) => (
                 <button
+                  suppressHydrationWarning
                   key={idx}
                   onClick={() => {
                     setDirection(idx > currentIndex ? 1 : -1);
@@ -153,6 +155,7 @@ export default function Testimonials() {
             </div>
 
             <button
+              suppressHydrationWarning
               onClick={handleNext}
               className="p-3 rounded-full border border-white/10 bg-white/5 text-slate-300 hover:text-white hover:border-teal-500/30 transition-all active:scale-90"
               aria-label="Next testimonial"

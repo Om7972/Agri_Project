@@ -31,6 +31,7 @@ export default function LocationSelector() {
 
         {/* India Option (Opens directly) */}
         <button
+          suppressHydrationWarning
           onClick={() => handleSelect('India')}
           disabled={isFetching}
           className={`relative z-10 px-6 py-2 rounded-full text-xs font-semibold tracking-wider uppercase flex items-center gap-2 transition-all duration-300 ${
@@ -45,6 +46,7 @@ export default function LocationSelector() {
 
         {/* Dubai Option (Shows loader / fetches prices) */}
         <button
+          suppressHydrationWarning
           onClick={() => handleSelect('Dubai')}
           disabled={isFetching}
           className={`relative z-10 px-6 py-2 rounded-full text-xs font-semibold tracking-wider uppercase flex items-center gap-2 transition-all duration-300 ${

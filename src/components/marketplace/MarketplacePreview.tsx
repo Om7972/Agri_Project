@@ -101,6 +101,7 @@ export default function MarketplacePreview() {
               </div>
               
               <button
+                suppressHydrationWarning
                 onClick={triggerBuyerLogRefresh}
                 className="flex items-center gap-1.5 rounded-lg border border-white/10 hover:border-teal-500/30 bg-white/5 px-3 py-1.5 text-xs text-slate-300 hover:text-white transition-all active:scale-95"
               >
@@ -132,7 +133,7 @@ export default function MarketplacePreview() {
               <span className="text-xs text-slate-400 font-semibold mb-4 block">Procurement Volume Trend (Kilo-Tons)</span>
               {mounted ? (
                 <div className="h-36 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <LineChart data={buyerChartData}>
                       <XAxis dataKey="month" stroke="#475569" fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke="#475569" fontSize={10} tickLine={false} axisLine={false} width={20} />
@@ -191,6 +192,7 @@ export default function MarketplacePreview() {
               </div>
               
               <button
+                suppressHydrationWarning
                 onClick={handleHarvestInput}
                 className="flex items-center gap-1.5 rounded-lg border border-white/10 hover:border-lime-500/30 bg-white/5 px-3 py-1.5 text-xs text-slate-300 hover:text-white transition-all active:scale-95"
               >
@@ -222,7 +224,7 @@ export default function MarketplacePreview() {
               <span className="text-xs text-slate-400 font-semibold mb-4 block">Sales Performance (index units)</span>
               {mounted ? (
                 <div className="h-36 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={farmerChartData}>
                       <XAxis dataKey="month" stroke="#475569" fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke="#475569" fontSize={10} tickLine={false} axisLine={false} width={20} />

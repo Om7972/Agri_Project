@@ -55,10 +55,16 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-4 border-l border-white/10 pl-6">
-            <button className="text-sm font-semibold text-slate-300 hover:text-white transition-colors duration-200">
+            <button
+              suppressHydrationWarning
+              className="text-sm font-semibold text-slate-300 hover:text-white transition-colors duration-200"
+            >
               Log in
             </button>
-            <button className="relative group overflow-hidden rounded-full bg-gradient-to-r from-teal-500 to-lime-500 p-[1px] shadow-lg shadow-teal-500/20 active:scale-95 transition-transform duration-150">
+            <button
+              suppressHydrationWarning
+              className="relative group overflow-hidden rounded-full bg-gradient-to-r from-teal-500 to-lime-500 p-[1px] shadow-lg shadow-teal-500/20 active:scale-95 transition-transform duration-150"
+            >
               <span className="relative flex items-center gap-1 rounded-full bg-slate-950 px-5 py-2 text-sm font-bold text-white transition-colors duration-300 group-hover:bg-transparent">
                 Get Started
                 <ArrowUpRight className="h-4 w-4 text-teal-400 group-hover:text-slate-950 transition-colors duration-300" />
@@ -74,6 +80,7 @@ export default function Navbar() {
             <LocationSelector />
           </div>
           <button
+            suppressHydrationWarning
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
           >
@@ -108,12 +115,14 @@ export default function Navbar() {
 
               <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
                 <button
+                  suppressHydrationWarning
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full rounded-full border border-white/10 py-3 text-center text-sm font-semibold text-white hover:bg-white/5 transition-colors"
                 >
                   Log in
                 </button>
                 <button
+                  suppressHydrationWarning
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full rounded-full bg-gradient-to-r from-teal-500 to-lime-500 py-3 text-center text-sm font-bold text-slate-950 hover:opacity-90 transition-opacity"
                 >

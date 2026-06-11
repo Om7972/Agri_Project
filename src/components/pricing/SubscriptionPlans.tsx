@@ -152,6 +152,7 @@ export default function SubscriptionPlans() {
                 {/* Call To Action button */}
                 <div className="mt-8 pt-6 border-t border-white/5">
                   <button
+                    suppressHydrationWarning
                     onClick={() => alert(`Subscribed to ${tier.name} mock account!`)}
                     className={`w-full rounded-xl py-3 text-xs font-bold transition-all duration-300 active:scale-95 ${
                       tier.highlighted
