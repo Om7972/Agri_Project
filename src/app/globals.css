@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #0F172A;
+  --color-secondary: #14B8A6;
+  --color-accent: #84CC16;
+  --color-background: #020617;
+  --color-foreground: #f8fafc;
+  
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #020617;
+}
+
+body {
+  background-color: #020617;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+/* Custom Webkit scrollbar for premium terminal look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+  border: 2px solid #020617;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Smooth slow spinning animation for icons */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
