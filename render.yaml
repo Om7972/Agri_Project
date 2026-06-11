@@ -1,0 +1,28 @@
+services:
+  # MandiPrime Premium Backend API Node
+  - type: web
+    name: mandiprime-backend
+    env: node
+    plan: starter
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npx prisma db push && npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false # Connect to Neon PostgreSQL
+      - key: REDIS_URL
+        sync: false # Can connect to Upstash Redis or Render Redis
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

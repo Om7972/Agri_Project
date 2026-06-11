@@ -1,0 +1,267 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  FARMER
+  BUYER
+  EXPORTER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  ESCROW_FUNDED
+  DISPATCHED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  ESCROWED
+  RELEASED
+  REFUNDED
+}
+
+enum AuctionStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum SubscriptionTier {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum NotificationType {
+  INFO
+  ORDER_UPDATE
+  BID_UPDATE
+  PAYMENT
+}
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  passwordHash     String
+  role             Role              @default(BUYER)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  profile          Profile?
+  products         Product[]         @relation("SellerProducts")
+  ordersAsBuyer    Order[]           @relation("BuyerOrders")
+  ordersAsSeller   Order[]           @relation("SellerOrders")
+  auctions         Auction[]         @relation("UserAuctions")
+  bids             Bid[]             @relation("UserBids")
+  reviewsGiven     Review[]          @relation("ReviewsGiven")
+  reviewsReceived  Review[]          @relation("ReviewsReceived")
+  subscriptions    Subscription[]
+  notifications    Notification[]
+  messagesSent     Message[]         @relation("MessagesSent")
+  messagesReceived Message[]         @relation("MessagesReceived")
+  refreshTokens    RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName    String
+  phone       String?
+  companyName String?
+  address     String?
+  city        String?
+  country     String?
+  avatarUrl   String?
+  bio         String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum ProductStatus {
+  ACTIVE
+  SOLD
+  ARCHIVED
+}
+
+model Product {
+  id                 String        @id @default(uuid())
+  sellerId           String
+  seller             User          @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
+  categoryId         String
+  category           Category      @relation(fields: [categoryId], references: [id])
+  title              String
+  description        String
+  price              Float
+  unit               String
+  stock              Float
+  cropType           String
+  grade              String
+  imageUrl           String?
+  sellerVerification String        @default("Standard")
+  status             ProductStatus @default(ACTIVE)
+  orderItems         OrderItem[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model MarketRate {
+  id            String   @id @default(uuid())
+  crop          String   @unique
+  priceIndia    Float
+  priceDubai    Float
+  changeIndia   Float
+  changeDubai   Float
+  unitIndia     String
+  unitDubai     String
+  locationIndia String
+  locationDubai String
+  sparkline     Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  buyerId       String
+  buyer         User          @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId      String
+  seller        User          @relation("SellerOrders", fields: [sellerId], references: [id], onDelete: Cascade)
+  totalAmount   Float
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID)
+  items         OrderItem[]
+  reviews       Review[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Float
+  price     Float
+}
+
+model Auction {
+  id              String        @id @default(uuid())
+  creatorId       String
+  creator         User          @relation("UserAuctions", fields: [creatorId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  cropType        String
+  startPrice      Float
+  reservePrice    Float
+  currentHighBid  Float?
+  status          AuctionStatus @default(UPCOMING)
+  startTime       DateTime
+  endTime         DateTime
+  bids            Bid[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Bid {
+  id        String    @id @default(uuid())
+  auctionId String
+  auction   Auction   @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  bidderId  String
+  bidder    User      @relation("UserBids", fields: [bidderId], references: [id], onDelete: Cascade)
+  bidAmount Float
+  status    BidStatus @default(PENDING)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  reviewerId  String
+  reviewer    User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  revieweeId  String
+  reviewee    User     @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Cascade)
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rating      Int
+  comment     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Subscription {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier      SubscriptionTier
+  price     Float
+  status    SubscriptionStatus @default(ACTIVE)
+  startDate DateTime           @default(now())
+  endDate   DateTime
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  type      NotificationType @default(INFO)
+  createdAt DateTime         @default(now())
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  sender     User     @relation("MessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("MessagesReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
