@@ -1,13 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Landmark, ArrowUpRight } from 'lucide-react';
 import LocationSelector from '../location-selector/LocationSelector';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { user, logout } = useAuthStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navLinks = [
     { name: 'Home', href: '#home' },
@@ -54,23 +61,41 @@ export default function Navbar() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4 border-l border-white/10 pl-6">
-            <button
-              suppressHydrationWarning
-              className="text-sm font-semibold text-slate-300 hover:text-white transition-colors duration-200"
-            >
-              Log in
-            </button>
-            <button
-              suppressHydrationWarning
-              className="relative group overflow-hidden rounded-full bg-gradient-to-r from-teal-500 to-lime-500 p-[1px] shadow-lg shadow-teal-500/20 active:scale-95 transition-transform duration-150"
-            >
-              <span className="relative flex items-center gap-1 rounded-full bg-slate-950 px-5 py-2 text-sm font-bold text-white transition-colors duration-300 group-hover:bg-transparent">
-                Get Started
-                <ArrowUpRight className="h-4 w-4 text-teal-400 group-hover:text-slate-950 transition-colors duration-300" />
-              </span>
-            </button>
-          </div>
+          {mounted && user ? (
+            <div className="flex items-center gap-4 border-l border-white/10 pl-6">
+              <div className="text-right">
+                <span className="block text-xs font-semibold text-slate-300">{user.fullName || user.email}</span>
+                <span className="inline-block text-[10px] font-bold text-teal-400 font-mono tracking-wider uppercase bg-teal-500/10 px-1.5 py-0.5 rounded mt-0.5">
+                  {user.role}
+                </span>
+              </div>
+              <button
+                suppressHydrationWarning
+                onClick={() => logout()}
+                className="text-xs font-bold text-red-400 hover:text-red-300 transition-colors py-2 px-3 rounded-lg border border-red-500/10 hover:border-red-500/25 bg-red-500/5 active:scale-95 duration-150"
+              >
+                Log Out
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4 border-l border-white/10 pl-6">
+              <Link
+                href="/login"
+                className="text-sm font-semibold text-slate-300 hover:text-white transition-colors duration-200"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="relative group overflow-hidden rounded-full bg-gradient-to-r from-teal-500 to-lime-500 p-[1px] shadow-lg shadow-teal-500/20 active:scale-95 transition-transform duration-150"
+              >
+                <span className="relative flex items-center gap-1 rounded-full bg-slate-950 px-5 py-2 text-sm font-bold text-white transition-colors duration-300 group-hover:bg-transparent">
+                  Get Started
+                  <ArrowUpRight className="h-4 w-4 text-teal-400 group-hover:text-slate-950 transition-colors duration-300" />
+                </span>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Mobile menu trigger */}
@@ -113,22 +138,43 @@ export default function Navbar() {
                 ))}
               </nav>
 
-              <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
-                <button
-                  suppressHydrationWarning
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full rounded-full border border-white/10 py-3 text-center text-sm font-semibold text-white hover:bg-white/5 transition-colors"
-                >
-                  Log in
-                </button>
-                <button
-                  suppressHydrationWarning
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full rounded-full bg-gradient-to-r from-teal-500 to-lime-500 py-3 text-center text-sm font-bold text-slate-950 hover:opacity-90 transition-opacity"
-                >
-                  Get Started
-                </button>
-              </div>
+              {mounted && user ? (
+                <div className="flex flex-col gap-3 pt-6 border-t border-white/5 text-center">
+                  <div className="mb-2">
+                    <span className="block text-sm font-semibold text-slate-300">{user.fullName || user.email}</span>
+                    <span className="inline-block text-xs font-bold text-teal-400 font-mono tracking-wider uppercase bg-teal-500/10 px-2.5 py-0.5 rounded mt-1">
+                      {user.role}
+                    </span>
+                  </div>
+                  <button
+                    suppressHydrationWarning
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="w-full rounded-full border border-red-500/20 bg-red-500/5 py-3 text-center text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full rounded-full border border-white/10 py-3 text-center text-sm font-semibold text-white hover:bg-white/5 transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full rounded-full bg-gradient-to-r from-teal-500 to-lime-500 py-3 text-center text-sm font-bold text-slate-950 hover:opacity-90 transition-opacity"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
