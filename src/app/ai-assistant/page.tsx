@@ -212,6 +212,7 @@ export default function AIAssistantPage() {
             <form onSubmit={handleSendMessage} className="flex gap-2">
               <input
                 type="text"
+                title="AI Assistant Message Input"
                 placeholder="Ask e.g. 'What is the expected Basmati Rice pricing trend?'"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -219,6 +220,8 @@ export default function AIAssistantPage() {
               />
               <button
                 type="submit"
+                title="Send message"
+                aria-label="Send message"
                 disabled={loading}
                 className="rounded-xl bg-gradient-to-r from-teal-500 to-lime-500 px-6 font-bold text-slate-950 hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50 flex items-center justify-center"
               >
@@ -236,8 +239,10 @@ export default function AIAssistantPage() {
 
             <form onSubmit={handlePredictPrice} className="space-y-4 text-xs font-mono">
               <div className="space-y-1">
-                <label className="text-slate-400 block">COMMODITY CROP</label>
+                <label htmlFor="crop-select" className="text-slate-400 block">COMMODITY CROP</label>
                 <select
+                  id="crop-select"
+                  title="Select Commodity Crop"
                   value={crop}
                   onChange={(e) => setCrop(e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-slate-950/80 py-3 px-4 text-white focus:outline-none"
@@ -250,18 +255,22 @@ export default function AIAssistantPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-400 block">HARVEST LOCATION</label>
+                  <label htmlFor="harvest-location" className="text-slate-400 block">HARVEST LOCATION</label>
                   <input
+                    id="harvest-location"
                     type="text"
+                    placeholder="e.g. Gujarat"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     className="w-full rounded-xl border border-white/10 bg-slate-950 py-3 px-4 text-white focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-slate-400 block">VOLUME (QUINTALS)</label>
+                  <label htmlFor="volume-quintals" className="text-slate-400 block">VOLUME (QUINTALS)</label>
                   <input
+                    id="volume-quintals"
                     type="number"
+                    placeholder="e.g. 100"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     className="w-full rounded-xl border border-white/10 bg-slate-950 py-3 px-4 text-white focus:outline-none"

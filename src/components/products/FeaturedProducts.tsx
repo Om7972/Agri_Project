@@ -178,6 +178,8 @@ export default function FeaturedProducts() {
               >
                 {/* Close Button */}
                 <button
+                  title="Close Details"
+                  aria-label="Close Details"
                   onClick={handleCloseDetails}
                   className="absolute top-6 right-6 p-2 rounded-full border border-white/5 bg-white/5 text-slate-400 hover:text-white transition-colors"
                 >
@@ -226,7 +228,7 @@ export default function FeaturedProducts() {
 
                     {/* Right: Contract Bid Submission */}
                     <form onSubmit={handlePlaceBid} className="space-y-6">
-                      <div>
+                       <div>
                         <span className="text-xs text-slate-500 uppercase tracking-wider font-mono">Bid Portal</span>
                         <h3 className="text-xl font-bold text-white mt-1">
                           {location === 'India' ? selectedProduct.titleIndia : selectedProduct.titleDubai}
@@ -235,13 +237,15 @@ export default function FeaturedProducts() {
                       </div>
 
                       <div className="space-y-3">
-                        <label className="block text-xs font-semibold text-slate-400 uppercase">
+                        <label htmlFor="bid-volume" className="block text-xs font-semibold text-slate-400 uppercase">
                           Enter Contract Volume ({location === 'India' ? selectedProduct.unitIndia : selectedProduct.unitDubai})
                         </label>
                         <div className="relative">
                           <input
+                            id="bid-volume"
                             type="number"
                             required
+                            placeholder="e.g. 10"
                             value={orderQuantity}
                             onChange={(e) => setOrderQuantity(e.target.value)}
                             min="1"

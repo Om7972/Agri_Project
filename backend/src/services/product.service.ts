@@ -1,8 +1,8 @@
 import prisma from '@/config/db';
-import { BadRequestError, NotFoundError, ForbiddenError } from '@/utils/apiErrors';
+import { NotFoundError, ForbiddenError } from '@/utils/apiErrors';
 import { z } from 'zod';
 import { createProductSchema } from '@/validators/products';
-import { ProductStatus } from '@prisma/client';
+import { ProductStatus, Prisma } from '@prisma/client';
 
 type CreateProductInput = z.infer<typeof createProductSchema>;
 
@@ -148,7 +148,7 @@ export class ProductService {
     const limit = filters.limit || 10;
     const skip = (page - 1) * limit;
 
-    const whereClause: any = {
+    const whereClause: Prisma.ProductWhereInput = {
       status: ProductStatus.ACTIVE,
     };
 

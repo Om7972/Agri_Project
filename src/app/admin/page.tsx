@@ -188,6 +188,7 @@ export default function AdminPanelPage() {
                     <div className="flex justify-between items-center">
                       <span className="text-white font-bold block truncate max-w-[150px]">{u.profile?.fullName || u.email}</span>
                       <select
+                        title="Select User Role"
                         value={u.role}
                         onChange={(e) => handleUpdateRole(u.id, e.target.value)}
                         className="bg-slate-950 border border-white/10 rounded px-2 py-0.5 text-[10px] text-teal-400 focus:outline-none"
@@ -221,12 +222,16 @@ export default function AdminPanelPage() {
                       <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="text-teal-400 underline text-[10px]">View Document</a>
                       <div className="flex gap-2">
                         <button
+                          title="Approve Document"
+                          aria-label="Approve Document"
                           onClick={() => handleVerifyDoc(doc.id, 'APPROVED')}
                           className="p-1 rounded bg-lime-500/10 text-lime-400 hover:bg-lime-500/25 active:scale-95 transition-all"
                         >
                           <Check className="h-4 w-4" />
                         </button>
                         <button
+                          title="Reject Document"
+                          aria-label="Reject Document"
                           onClick={() => handleVerifyDoc(doc.id, 'REJECTED')}
                           className="p-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/25 active:scale-95 transition-all"
                         >

@@ -175,8 +175,9 @@ export default function ExportHubPage() {
 
               <form onSubmit={handleBookShipment} className="space-y-4 text-xs font-mono">
                 <div className="space-y-1">
-                  <label className="text-slate-400 block">ORDER TRANSACTION ID</label>
+                  <label htmlFor="export-order-id" className="text-slate-400 block">ORDER TRANSACTION ID</label>
                   <input
+                    id="export-order-id"
                     type="text"
                     placeholder="Enter order ID"
                     value={orderId}
@@ -185,8 +186,9 @@ export default function ExportHubPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-slate-400 block">FREIGHT CARRIER</label>
+                  <label htmlFor="export-carrier" className="text-slate-400 block">FREIGHT CARRIER</label>
                   <input
+                    id="export-carrier"
                     type="text"
                     placeholder="e.g. Gulf Ocean Freight"
                     value={carrier}
@@ -196,8 +198,9 @@ export default function ExportHubPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-slate-400 block">ORIGIN PORT</label>
+                    <label htmlFor="export-origin" className="text-slate-400 block">ORIGIN PORT</label>
                     <input
+                      id="export-origin"
                       type="text"
                       placeholder="e.g. Kandla Port"
                       value={origin}
@@ -206,8 +209,9 @@ export default function ExportHubPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-slate-400 block">DESTINATION PORT</label>
+                    <label htmlFor="export-destination" className="text-slate-400 block">DESTINATION PORT</label>
                     <input
+                      id="export-destination"
                       type="text"
                       placeholder="e.g. Jebel Ali Port"
                       value={destination}
@@ -217,9 +221,11 @@ export default function ExportHubPage() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-slate-400 block">ESTIMATED ARRIVAL DATE</label>
+                  <label htmlFor="est-delivery-date" className="text-slate-400 block">ESTIMATED ARRIVAL DATE</label>
                   <input
+                    id="est-delivery-date"
                     type="date"
+                    title="Estimated Arrival Date"
                     value={estimatedDelivery}
                     onChange={(e) => setEstimatedDelivery(e.target.value)}
                     className="w-full rounded-xl border border-white/10 bg-slate-950/50 py-3 px-4 text-white focus:border-teal-500/50 focus:outline-none"
@@ -356,10 +362,12 @@ export default function ExportHubPage() {
                 </div>
 
                 <form onSubmit={handleUploadDoc} className="space-y-4 text-xs font-mono">
-                  <div className="grid grid-cols-2 gap-3">
+                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-slate-400 block">DOCUMENT TYPE</label>
+                      <label htmlFor="export-doc-type" className="text-slate-400 block">DOCUMENT TYPE</label>
                       <select
+                        id="export-doc-type"
+                        title="Select Document Type"
                         value={docType}
                         onChange={(e) => setDocType(e.target.value)}
                         className="w-full rounded-xl border border-white/10 bg-slate-950 py-3 px-4 text-white focus:outline-none"
@@ -371,8 +379,9 @@ export default function ExportHubPage() {
                       </select>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-slate-400 block">DOCUMENT FILE URL</label>
+                      <label htmlFor="export-file-url" className="text-slate-400 block">DOCUMENT FILE URL</label>
                       <input
+                        id="export-file-url"
                         type="text"
                         placeholder="https://cloudinary.com/doc.pdf"
                         value={fileUrl}

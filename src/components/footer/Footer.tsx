@@ -35,7 +35,9 @@ export default function Footer() {
               <a
                 href="https://twitter.com"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
+                title="Follow MandiPrime on Twitter"
+                aria-label="Follow MandiPrime on Twitter"
                 className="h-8 w-8 rounded-lg border border-white/5 bg-white/[0.02] flex items-center justify-center text-slate-400 hover:text-white hover:border-teal-500/30 transition-all"
               >
                 <TwitterIcon className="h-4 w-4" />
@@ -43,7 +45,9 @@ export default function Footer() {
               <a
                 href="https://linkedin.com"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
+                title="Connect with MandiPrime on LinkedIn"
+                aria-label="Connect with MandiPrime on LinkedIn"
                 className="h-8 w-8 rounded-lg border border-white/5 bg-white/[0.02] flex items-center justify-center text-slate-400 hover:text-white hover:border-teal-500/30 transition-all"
               >
                 <LinkedinIcon className="h-4 w-4" />
@@ -51,7 +55,9 @@ export default function Footer() {
               <a
                 href="https://github.com"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
+                title="Follow MandiPrime on GitHub"
+                aria-label="Follow MandiPrime on GitHub"
                 className="h-8 w-8 rounded-lg border border-white/5 bg-white/[0.02] flex items-center justify-center text-slate-400 hover:text-white hover:border-teal-500/30 transition-all"
               >
                 <GitHubIcon className="h-4 w-4" />

@@ -336,7 +336,7 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                      <label htmlFor="country-select" className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
                         Country
                       </label>
                       <div className="relative">
@@ -344,6 +344,8 @@ export default function RegisterPage() {
                           <Globe className="h-4 w-4" />
                         </div>
                         <select
+                          id="country-select"
+                          title="Select Country"
                           required
                           value={country}
                           onChange={(e) => setCountry(e.target.value)}
