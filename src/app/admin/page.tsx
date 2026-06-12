@@ -50,14 +50,14 @@ export default function AdminPanelPage() {
       const usersRes = await fetch(`${API_BASE_URL}/admin/users`, { headers });
       const usersData = await usersRes.json();
       if (usersRes.ok && usersData.success) {
-        setUsers(usersData.data);
+        setUsers(usersData.data.users || []);
       }
 
       // Fetch audit logs
       const auditRes = await fetch(`${API_BASE_URL}/admin/audit-logs`, { headers });
       const auditData = await auditRes.json();
       if (auditRes.ok && auditData.success) {
-        setAuditLogs(auditData.data);
+        setAuditLogs(auditData.data.logs || []);
       }
 
       // Fetch pending documents (simulate via API export document listings)
