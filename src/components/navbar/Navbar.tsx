@@ -16,13 +16,23 @@ export default function Navbar() {
     setMounted(true);
   }, []);
 
-  const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Markets', href: '#markets' },
-    { name: 'Marketplace', href: '#marketplace' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'Contact', href: '#contact' },
-  ];
+  const navLinks = mounted && user
+    ? [
+        { name: 'Home', href: '/' },
+        { name: 'Auctions', href: '/auctions' },
+        { name: 'Export Hub', href: '/export' },
+        { name: 'Logistics', href: '/logistics' },
+        { name: 'Analytics', href: '/analytics' },
+        { name: 'AI Assistant', href: '/ai-assistant' },
+        ...(user.role === 'ADMIN' ? [{ name: 'Admin Panel', href: '/admin' }] : []),
+      ]
+    : [
+        { name: 'Home', href: '/#home' },
+        { name: 'Markets', href: '/#markets' },
+        { name: 'Marketplace', href: '/#marketplace' },
+        { name: 'Pricing', href: '/#pricing' },
+        { name: 'Contact', href: '/#contact' },
+      ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/40 backdrop-blur-xl">
@@ -50,14 +60,14 @@ export default function Navbar() {
         <div className="hidden lg:flex items-center gap-8">
           <nav className="flex items-center gap-6">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
                 className="text-sm font-medium text-slate-300 hover:text-white transition-colors duration-200 relative group py-2"
               >
                 {link.name}
                 <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-teal-500 to-lime-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -127,14 +137,14 @@ export default function Navbar() {
             <div className="flex flex-col gap-6 px-6 py-8">
               <nav className="flex flex-col gap-4">
                 {navLinks.map((link) => (
-                  <a
+                  <Link
                     key={link.name}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className="text-base font-semibold text-slate-300 hover:text-white transition-colors duration-200"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 ))}
               </nav>
 

@@ -26,11 +26,14 @@ export class AuthService {
 
     // Create user and profile in a transaction
     const user = await prisma.$transaction(async (tx) => {
+      const isAdminEmail = input.email.toLowerCase() === (process.env.ADMIN_EMAIL || 'admin@mandiprime.com').toLowerCase();
+      const assignedRole = isAdminEmail ? Role.ADMIN : input.role;
+
       const newUser = await tx.user.create({
         data: {
           email: input.email,
           passwordHash,
-          role: input.role,
+          role: assignedRole,
         },
       });
 
