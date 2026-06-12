@@ -7,6 +7,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import apiRoutes from '@/routes';
 import { errorHandler } from '@/middlewares/error';
 import { NotFoundError } from '@/utils/apiErrors';
+import { apiLimiter } from '@/middlewares/rateLimiter';
 
 const app = express();
 
@@ -74,7 +75,7 @@ app.get('/', (req, res) => {
 });
 
 // API Routes
-app.use('/api/v1', apiRoutes);
+app.use('/api/v1', apiLimiter, apiRoutes);
 
 // Fallback 404 Route
 app.use((req, res, next) => {

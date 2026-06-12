@@ -1,28 +1,58 @@
 services:
-  # MandiPrime Premium Backend API Node
+  # 1. Express backend service
   - type: web
     name: mandiprime-backend
     env: node
     plan: starter
     rootDir: backend
     buildCommand: npm install && npm run build
-    startCommand: npx prisma db push && npm run start
+    startCommand: npm run start
     envVars:
+      - key: PORT
+        value: 5000
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
       - key: DATABASE_URL
-        sync: false # Connect to Neon PostgreSQL
+        fromDatabase:
+          name: mandiprime-db
+          property: connectionString
       - key: REDIS_URL
-        sync: false # Can connect to Upstash Redis or Render Redis
+        fromService:
+          name: mandiprime-redis
+          type: redis
+          property: connectionString
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
         generateValue: true
-      - key: CLOUDINARY_CLOUD_NAME
-        sync: false
-      - key: CLOUDINARY_API_KEY
-        sync: false
-      - key: CLOUDINARY_API_SECRET
-        sync: false
+      - key: CORS_ORIGIN
+        value: '*'
+
+  # 2. Next.js Frontend service
+  - type: web
+    name: mandiprime-frontend
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: mandiprime-backend
+          type: web
+          property: url
+          path: /api/v1
+
+databases:
+  - name: mandiprime-db
+    plan: starter
+    databaseName: mandiprime
+    user: postgres
+
+interfaces:
+  - type: redis
+    name: mandiprime-redis
+    plan: starter
+    ipAllowList: [] # empty means only services in the same account can connect

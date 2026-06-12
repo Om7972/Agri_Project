@@ -83,6 +83,8 @@ model User {
   messagesReceived Message[]         @relation("MessagesReceived")
   refreshTokens    RefreshToken[]
   chatSessions     ChatSession[]
+  auditLogs        AuditLog[]
+  transactions     Transaction[]
 }
 
 model RefreshToken {
@@ -174,6 +176,8 @@ model Order {
   paymentStatus PaymentStatus @default(UNPAID)
   items         OrderItem[]
   reviews       Review[]
+  shipment      Shipment?
+  transactions  Transaction[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -241,6 +245,7 @@ model Subscription {
   status    SubscriptionStatus @default(ACTIVE)
   startDate DateTime           @default(now())
   endDate   DateTime
+  transactions Transaction[]
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
 }
@@ -297,3 +302,119 @@ model PricePrediction {
   trend           String   // "UP", "DOWN", "STABLE"
   createdAt       DateTime @default(now())
 }
+
+enum DocumentType {
+  PHYTOSANITARY
+  BILL_OF_LADING
+  CERTIFICATE_OF_ORIGIN
+  CUSTOMS_DECLARATION
+  COMMERCIAL_INVOICE
+}
+
+enum DocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ShipmentStatus {
+  BOOKED
+  PORT_OF_ORIGIN
+  IN_TRANSIT
+  PORT_OF_DESTINATION
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+model Shipment {
+  id                 String          @id @default(uuid())
+  orderId            String          @unique
+  order              Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  trackingNumber     String          @unique
+  carrier            String
+  origin             String
+  destination        String
+  status             ShipmentStatus  @default(BOOKED)
+  estimatedDelivery  DateTime?
+  actualDelivery     DateTime?
+  logisticsBookingId String?
+  logisticsBooking   LogisticsBooking? @relation(fields: [logisticsBookingId], references: [id])
+  documents          ExportDocument[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+model ExportDocument {
+  id           String         @id @default(uuid())
+  shipmentId   String
+  shipment     Shipment       @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  documentType DocumentType
+  fileUrl      String
+  status       DocumentStatus @default(PENDING)
+  notes        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+enum LogisticsStatus {
+  ASSIGNED
+  EN_ROUTE
+  DISPATCHED
+  DELIVERED
+}
+
+model LogisticsBooking {
+  id               String          @id @default(uuid())
+  driverName       String
+  driverPhone      String
+  vehicleNumber    String
+  vehicleType      String
+  status           LogisticsStatus @default(ASSIGNED)
+  currentLatitude  Float?
+  currentLongitude Float?
+  shipments        Shipment[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+enum PaymentGateway {
+  STRIPE
+  RAZORPAY
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model Transaction {
+  id               String            @id @default(uuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId          String?
+  order            Order?            @relation(fields: [orderId], references: [id])
+  subscriptionId   String?
+  subscription     Subscription?     @relation(fields: [subscriptionId], references: [id])
+  amount           Float
+  currency         String            @default("INR")
+  gateway          PaymentGateway
+  gatewayOrderId   String?
+  gatewayPaymentId String?
+  status           TransactionStatus @default(PENDING)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
