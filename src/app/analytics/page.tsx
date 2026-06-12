@@ -122,7 +122,7 @@ export default function AnalyticsPage() {
                   Monthly Transaction Clearing Trend (INR)
                 </h3>
                 <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 500, height: 256 }}>
                     <AreaChart data={data.revenueData} margin={{ left: 10, right: 10, top: 10, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
@@ -157,7 +157,7 @@ export default function AnalyticsPage() {
                   Regional Demand vs Supply Balances (Tons)
                 </h3>
                 <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 500, height: 256 }}>
                     <BarChart data={data.marketVolumeData}>
                       <XAxis dataKey="commodity" stroke="#475569" fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke="#475569" fontSize={10} tickLine={false} axisLine={false} />

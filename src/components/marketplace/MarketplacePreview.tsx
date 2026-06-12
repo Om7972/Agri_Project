@@ -133,7 +133,7 @@ export default function MarketplacePreview() {
               <span className="text-xs text-slate-400 font-semibold mb-4 block">Procurement Volume Trend (Kilo-Tons)</span>
               {mounted ? (
                 <div className="h-36 w-full">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 300, height: 144 }}>
                     <LineChart data={buyerChartData}>
                       <XAxis dataKey="month" stroke="#475569" fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke="#475569" fontSize={10} tickLine={false} axisLine={false} width={20} />
@@ -224,7 +224,7 @@ export default function MarketplacePreview() {
               <span className="text-xs text-slate-400 font-semibold mb-4 block">Sales Performance (index units)</span>
               {mounted ? (
                 <div className="h-36 w-full">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 300, height: 144 }}>
                     <BarChart data={farmerChartData}>
                       <XAxis dataKey="month" stroke="#475569" fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke="#475569" fontSize={10} tickLine={false} axisLine={false} width={20} />

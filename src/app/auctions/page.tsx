@@ -74,7 +74,7 @@ export default function AuctionsPage() {
             if (auc.id === data.auctionId) {
               return {
                 ...auc,
-                bids: [data.bid, ...auc.bids],
+                bids: [data.bid, ...(auc.bids || [])],
               };
             }
             return auc;
@@ -101,7 +101,7 @@ export default function AuctionsPage() {
     const auction = auctions.find((a) => a.id === auctionId);
     if (!auction) return;
 
-    const currentHighest = auction.bids.length > 0 ? auction.bids[0].bidAmount : auction.startPrice;
+    const currentHighest = (auction.bids && auction.bids.length > 0) ? auction.bids[0].bidAmount : auction.startPrice;
     if (amount <= currentHighest) {
       setBidErrors({ ...bidErrors, [auctionId]: `Bid must be higher than ${currentHighest}.` });
       return;
@@ -128,7 +128,7 @@ export default function AuctionsPage() {
           if (auc.id === auctionId) {
             return {
               ...auc,
-              bids: [result.data, ...auc.bids],
+              bids: [result.data, ...(auc.bids || [])],
             };
           }
           return auc;
@@ -177,7 +177,7 @@ export default function AuctionsPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {auctions.map((auction) => {
-              const currentPrice = auction.bids.length > 0 ? auction.bids[0].bidAmount : auction.startPrice;
+              const currentPrice = (auction.bids && auction.bids.length > 0) ? auction.bids[0].bidAmount : auction.startPrice;
               return (
                 <motion.div
                   key={auction.id}
@@ -215,7 +215,7 @@ export default function AuctionsPage() {
                         <Users className="h-4 w-4 text-slate-500" />
                         <div>
                           <span className="text-[10px] text-slate-500 block">TOTAL BIDS</span>
-                          <span className="text-white font-semibold">{auction.bids.length}</span>
+                          <span className="text-white font-semibold">{auction.bids ? auction.bids.length : 0}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -231,13 +231,13 @@ export default function AuctionsPage() {
                     <div className="space-y-2">
                       <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Bid History Feed</span>
                       <div className="space-y-1.5 max-h-36 overflow-y-auto">
-                        {auction.bids.map((bid, idx) => (
+                        {(auction.bids || []).map((bid, idx) => (
                           <div key={bid.id || idx} className="flex justify-between items-center p-2 rounded-lg bg-white/[0.02] border border-white/5 text-xs text-slate-300">
                             <span className="font-mono text-slate-400">{bid.bidder.email}</span>
                             <span className="font-mono text-lime-400 font-bold">₹{bid.bidAmount.toLocaleString()}</span>
                           </div>
                         ))}
-                        {auction.bids.length === 0 && (
+                        {(!auction.bids || auction.bids.length === 0) && (
                           <div className="text-center py-4 text-slate-500 text-xs italic">No bids placed yet. Be the first!</div>
                         )}
                       </div>
