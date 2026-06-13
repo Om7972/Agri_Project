@@ -61,6 +61,7 @@ const router = Router();
  *         description: Products retrieved successfully.
  */
 router.get('/', ProductController.list);
+router.get('/categories', ProductController.getCategories);
 
 /**
  * @openapi

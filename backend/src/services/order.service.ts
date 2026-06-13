@@ -1,6 +1,7 @@
 import prisma from '@/config/db';
 import { BadRequestError, NotFoundError, ForbiddenError } from '@/utils/apiErrors';
 import { OrderStatus, PaymentStatus, NotificationType } from '@prisma/client';
+import { AgriService } from './agri.service';
 
 export class OrderService {
   public static async createOrder(buyerId: string, productId: string, quantity: number) {
@@ -153,6 +154,9 @@ export class OrderService {
           message: `Order #${order.id.slice(0, 8)} has been completed and funds released from escrow.`,
           type: NotificationType.PAYMENT,
         });
+
+        // Recalculate seller trust score
+        AgriService.calculateTrustScore(order.sellerId).catch(console.error);
       }
     }
 

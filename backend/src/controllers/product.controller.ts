@@ -102,4 +102,13 @@ export class ProductController {
       next(error);
     }
   }
+
+  public static async getCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+      const categories = await ProductService.listCategories();
+      return sendResponse(res, 200, 'Categories retrieved successfully.', categories);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

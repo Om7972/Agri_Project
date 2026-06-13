@@ -11,6 +11,8 @@ export const createProductSchema = z.object({
   categoryId: z.string().uuid({ message: 'Invalid category UUID' }),
   imageUrl: z.string().url().optional(),
   sellerVerification: z.enum(['Standard', 'Elite']).optional().default('Standard'),
+  harvestDate: z.preprocess((val) => val ? new Date(val as string) : undefined, z.date().optional()),
+  certificateUrl: z.string().optional(),
 });
 
 export const updateProductSchema = createProductSchema.partial();

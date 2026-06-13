@@ -3,6 +3,7 @@ import { NotFoundError, ForbiddenError } from '@/utils/apiErrors';
 import { z } from 'zod';
 import { createProductSchema } from '@/validators/products';
 import { ProductStatus, Prisma } from '@prisma/client';
+import { AgriService } from './agri.service';
 
 type CreateProductInput = z.infer<typeof createProductSchema>;
 
@@ -16,7 +17,7 @@ export class ProductService {
       throw new NotFoundError('Category not found.');
     }
 
-    return prisma.product.create({
+    const product = await prisma.product.create({
       data: {
         sellerId,
         categoryId: input.categoryId,
@@ -30,6 +31,8 @@ export class ProductService {
         imageUrl: input.imageUrl,
         sellerVerification: input.sellerVerification || 'Standard',
         status: ProductStatus.ACTIVE,
+        harvestDate: input.harvestDate,
+        certificateUrl: input.certificateUrl,
       },
       include: {
         category: true,
@@ -48,6 +51,12 @@ export class ProductService {
         },
       },
     });
+
+    // Run alerts & saved searches match triggers in background
+    AgriService.checkSavedSearches(product).catch(console.error);
+    AgriService.checkPriceAlerts(product).catch(console.error);
+
+    return product;
   }
 
   public static async updateProduct(
@@ -227,5 +236,11 @@ export class ProductService {
         limit,
       },
     };
+  }
+
+  public static async listCategories() {
+    return prisma.category.findMany({
+      orderBy: { name: 'asc' },
+    });
   }
 }

@@ -10,6 +10,7 @@ import logisticsRoutes from './logistics.routes';
 import subscriptionRoutes from './subscription.routes';
 import analyticsRoutes from './analytics.routes';
 import adminRoutes from './admin.routes';
+import agriRoutes from './agri.routes';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/logistics', logisticsRoutes);
 router.use('/subscriptions', subscriptionRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/admin', adminRoutes);
+router.use('/agri', agriRoutes);
 
 export default router;

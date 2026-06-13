@@ -67,6 +67,7 @@ model User {
   email            String            @unique
   passwordHash     String
   role             Role              @default(BUYER)
+  trustScore       Float             @default(80.0)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   profile          Profile?
@@ -85,6 +86,10 @@ model User {
   chatSessions     ChatSession[]
   auditLogs        AuditLog[]
   transactions     Transaction[]
+  savedSearches    SavedSearch[]
+  priceAlerts      PriceAlert[]
+  buyerNegotiations Negotiation[]    @relation("BuyerNegotiations")
+  sellerNegotiations Negotiation[]   @relation("SellerNegotiations")
 }
 
 model RefreshToken {
@@ -144,7 +149,10 @@ model Product {
   imageUrl           String?
   sellerVerification String        @default("Standard")
   status             ProductStatus @default(ACTIVE)
+  harvestDate        DateTime?
+  certificateUrl     String?
   orderItems         OrderItem[]
+  negotiations       Negotiation[]
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 }
@@ -178,6 +186,7 @@ model Order {
   reviews       Review[]
   shipment      Shipment?
   transactions  Transaction[]
+  contract      Contract?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -416,5 +425,61 @@ model AuditLog {
   details   String?
   ipAddress String?
   createdAt DateTime @default(now())
+}
+
+model SavedSearch {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query     String
+  filters   Json
+  createdAt DateTime @default(now())
+}
+
+model PriceAlert {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cropType    String
+  targetPrice Float
+  condition   String   // "GREATER_THAN" or "LESS_THAN"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Negotiation {
+  id            String               @id @default(uuid())
+  buyerId       String
+  buyer         User                 @relation("BuyerNegotiations", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId      String
+  seller        User                 @relation("SellerNegotiations", fields: [sellerId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  originalPrice Float
+  currentPrice  Float
+  status        String               @default("PENDING") // "PENDING", "ACCEPTED", "REJECTED"
+  messages      NegotiationMessage[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+model NegotiationMessage {
+  id            String      @id @default(uuid())
+  negotiationId String
+  negotiation   Negotiation @relation(fields: [negotiationId], references: [id], onDelete: Cascade)
+  senderId      String
+  content       String
+  fileUrl       String?
+  createdAt     DateTime    @default(now())
+}
+
+model Contract {
+  id            String   @id @default(uuid())
+  orderId       String   @unique
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  pdfUrl        String
+  contractTerms String
+  createdAt     DateTime @default(now())
 }
 
