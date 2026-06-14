@@ -153,6 +153,7 @@ model Product {
   certificateUrl     String?
   orderItems         OrderItem[]
   negotiations       Negotiation[]
+  qualityGrading     QualityGrading?
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 }
@@ -482,4 +483,136 @@ model Contract {
   contractTerms String
   createdAt     DateTime @default(now())
 }
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model SellerVerification {
+  id               String             @id @default(uuid())
+  userId           String             @unique
+  aadharNumber     String?
+  gstNumber        String?
+  businessCertUrl  String?
+  status           VerificationStatus @default(PENDING)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model QualityGrading {
+  id             String   @id @default(uuid())
+  productId      String   @unique
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  grade          String   // PREMIUM, GRADE_A, GRADE_B, GRADE_C
+  labReportUrl   String?
+  certificateUrl String?
+  imagesUrl      String?
+  createdAt      DateTime @default(now())
+}
+
+model WarehouseSpace {
+  id            String             @id @default(uuid())
+  ownerId       String
+  name          String
+  location      String
+  capacityTons  Float
+  availableTons Float
+  ratePerTonDay Float
+  description   String?
+  status        String             @default("ACTIVE") // ACTIVE, FULL, ARCHIVED
+  bookings      WarehouseBooking[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+model WarehouseBooking {
+  id           String         @id @default(uuid())
+  warehouseId  String
+  warehouse    WarehouseSpace @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  farmerId     String
+  quantityTons Float
+  startDate    DateTime
+  endDate      DateTime
+  totalCost    Float
+  status       String         @default("BOOKED") // BOOKED, IN_STORAGE, COMPLETED, CANCELLED
+  createdAt    DateTime       @default(now())
+}
+
+model TransportCarrier {
+  id            String             @id @default(uuid())
+  driverName    String
+  driverPhone   String
+  vehicleNumber String
+  vehicleType   String             // TRUCK, CONTAINER, TEMPO
+  capacityTons  Float
+  ratePerKm     Float
+  activeRoute   String?
+  currentStatus String             @default("AVAILABLE") // AVAILABLE, BOOKED, OFFLINE
+  bookings      TransportBooking[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+model TransportBooking {
+  id               String           @id @default(uuid())
+  carrierId        String
+  carrier          TransportCarrier @relation(fields: [carrierId], references: [id], onDelete: Cascade)
+  userId           String
+  fromLocation     String
+  toLocation       String
+  estimatedKm      Float
+  totalCost        Float
+  status           String           @default("BOOKED") // BOOKED, IN_TRANSIT, DELIVERED, CANCELLED
+  createdAt        DateTime         @default(now())
+}
+
+model DemandForecast {
+  id                 String   @id @default(uuid())
+  cropType           String   @unique
+  demandScore        Float    // 0 to 100
+  demandLevel        String   // HIGH, MEDIUM, LOW
+  opportunityDetails String?
+  expectedPriceTrend String   // UP, DOWN, STABLE
+  updatedAt          DateTime @updatedAt
+}
+
+model BulkRequirement {
+  id           String            @id @default(uuid())
+  buyerId      String
+  cropType     String
+  quantityTons Float
+  budgetPrice  Float
+  deliveryDate DateTime
+  status       String            @default("OPEN") // OPEN, CLOSED, FULFILLED
+  quotations   FarmerQuotation[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model FarmerQuotation {
+  id            String          @id @default(uuid())
+  requirementId String
+  requirement   BulkRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  farmerId      String
+  offeredPrice  Float
+  quantityTons  Float
+  notes         String?
+  status        String          @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt     DateTime        @default(now())
+}
+
+model TradeFinanceApplication {
+  id                String   @id @default(uuid())
+  userId            String
+  type              String   // INVOICE_FINANCING, WORKING_CAPITAL, PURCHASE_LOAN
+  amount            Float
+  status            String   @default("PENDING") // PENDING, APPROVED, REJECTED, DISBURSED
+  collateralDetails String?
+  documentsUrl      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
 

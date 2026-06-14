@@ -27,6 +27,7 @@ export default function Navbar() {
         { name: 'Auctions', href: '/auctions' },
         { name: 'Export Hub', href: '/export' },
         { name: 'Logistics', href: '/logistics' },
+        { name: 'Innovation Hub', href: '/innovative' },
         { name: 'Analytics', href: '/analytics' },
         { name: 'AI Assistant', href: '/ai-assistant' },
         ...(user.role === 'ADMIN' ? [{ name: 'Admin Panel', href: '/admin' }] : []),

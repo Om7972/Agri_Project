@@ -11,6 +11,7 @@ import subscriptionRoutes from './subscription.routes';
 import analyticsRoutes from './analytics.routes';
 import adminRoutes from './admin.routes';
 import agriRoutes from './agri.routes';
+import innovativeRoutes from './innovative.routes';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use('/subscriptions', subscriptionRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/admin', adminRoutes);
 router.use('/agri', agriRoutes);
+router.use('/innovative', innovativeRoutes);
 
 export default router;
