@@ -60,6 +60,35 @@ enum NotificationType {
   ORDER_UPDATE
   BID_UPDATE
   PAYMENT
+  PRICE_ALERT
+  MARKET_OPPORTUNITY
+  FRAUD_ALERT
+  AUCTION_OUTBID
+  SYSTEM
+}
+
+model MarketReport {
+  id          String   @id @default(uuid())
+  type        String   // "daily", "weekly", "monthly"
+  data        Json
+  generatedAt DateTime @default(now())
+
+  @@index([type])
+}
+
+model FraudAlert {
+  id         String   @id @default(uuid())
+  userId     String
+  alertType  String   // "FAKE_SELLER", "SUSPICIOUS_PRICING", "ABNORMAL_ACTIVITY", "REVIEW_MANIPULATION"
+  severity   String   // "LOW", "MEDIUM", "HIGH", "CRITICAL"
+  details    String
+  isResolved Boolean  @default(false)
+  resolvedBy String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isResolved])
 }
 
 model User {
