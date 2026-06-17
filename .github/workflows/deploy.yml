@@ -9,6 +9,17 @@ on:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
+    env:
+      # Prisma needs a valid DATABASE_URL to generate client
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # Mock secrets so the app module can be imported during tests
+      JWT_ACCESS_SECRET: "test_jwt_access_secret_minimum_32_chars_ok"
+      JWT_REFRESH_SECRET: "test_jwt_refresh_secret_minimum_32_chars_ok"
+      NODE_ENV: test
+      PORT: 5000
+      CORS_ORIGIN: "*"
+      REDIS_URL: "redis://localhost:6379"
+
     steps:
       - uses: actions/checkout@v3
 
@@ -32,7 +43,7 @@ jobs:
       - name: Run Jest Tests
         run: |
           cd backend
-          npm test -- --passWithNoTests
+          npm test -- --passWithNoTests --forceExit
 
   test-frontend:
     runs-on: ubuntu-latest

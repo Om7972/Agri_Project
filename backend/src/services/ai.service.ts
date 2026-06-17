@@ -444,7 +444,7 @@ export class AiService {
 
     // --- Documentation Check ---
     const requiredDocs = ['PHYTOSANITARY', 'CERTIFICATE_OF_ORIGIN', 'COMMERCIAL_INVOICE'];
-    const missingDocs = requiredDocs.filter((d) => !docTypes.has(d as string));
+    const missingDocs = requiredDocs.filter((d) => !docTypes.has(d as any));
     const docScore =
       missingDocs.length === 0 ? { score: 100, status: 'PASS' as const, details: 'All required export documents present' }
       : missingDocs.length <= 1 ? { score: 65, status: 'WARN' as const, details: `Missing: ${missingDocs.join(', ')}` }

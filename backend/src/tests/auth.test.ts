@@ -2,8 +2,20 @@ import request from 'supertest';
 import app from '@/app';
 import prisma from '@/config/db';
 
+// Mock Prisma entirely so CI never needs a live database connection
+jest.mock('@/config/db', () => ({
+  __esModule: true,
+  default: {
+    $disconnect: jest.fn().mockResolvedValue(undefined),
+    user: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+    },
+  },
+}));
+
 describe('Auth & System Integrity Endpoints', () => {
-  // Disconnect database after testing
   afterAll(async () => {
     await prisma.$disconnect();
   });
