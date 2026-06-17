@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Navbar from '@/components/navbar/Navbar';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import Footer from '@/components/footer/Footer';
@@ -14,19 +14,25 @@ import {
   Truck,
   LineChart,
   ShoppingBag,
-  Plus,
   Coins,
   PhoneCall,
   BarChart3,
-  Calendar,
-  Layers,
-  ArrowUpRight,
   TrendingUp,
   TrendingDown,
-  Info,
-  DollarSign,
-  Briefcase
+  Info
 } from 'lucide-react';
+
+// ---- Domain interfaces ----
+interface VerificationStatus { status: string; updatedAt: string; aadharNumber?: string; gstNumber?: string; businessCertUrl?: string; }
+interface AgriProduct { id: string; title: string; cropType: string; grade: string; unit: string; price: number; stock: number; sellerId: string; seller?: { email?: string }; status?: string; [key: string]: unknown; }
+interface Warehouse { id: string; name: string; location: string; availableTons: number; ratePerTonDay: number; [key: string]: unknown; }
+interface WarehouseBooking { id: string; quantityTons: number; totalCost: number; startDate: string; endDate: string; status?: string; warehouse?: { name?: string }; }
+interface CarrierVehicle { id: string; vehicleNumber: string; vehicleType: string; driverName: string; driverPhone: string; capacityTons: number; ratePerKm: number; }
+interface LogisticsBooking { id: string; fromLocation: string; toLocation: string; estimatedKm: number; totalCost: number; status?: string; carrier?: { vehicleNumber?: string; vehicleType?: string }; }
+interface ForecastItem { id: string; cropType: string; demandScore: number; demandLevel: string; opportunityDetails: string; [key: string]: unknown; }
+interface BulkRequirement { id: string; cropType: string; quantityTons: number; budgetPrice: number; deliveryDate: string; }
+interface FinanceApp { id: string; type: string; amount: number; status: string; createdAt: string; collateralDetails?: string; }
+interface DirectContact { fullName?: string; phone?: string; email?: string; address?: string; verificationBadge?: string; aadharVerified?: boolean; gstVerified?: boolean; businessCertVerified?: boolean; }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -42,19 +48,18 @@ export default function InnovativeHubPage() {
   const [aadhar, setAadhar] = useState('');
   const [gst, setGst] = useState('');
   const [businessCert, setBusinessCert] = useState('');
-  const [verificationStatus, setVerificationStatus] = useState<any>(null);
+  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
 
   // 2. Quality Grading states
-  const [myProducts, setMyProducts] = useState<any[]>([]);
+  const [myProducts, setMyProducts] = useState<AgriProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('Grade A');
   const [labReportUrl, setLabReportUrl] = useState('');
   const [certUrl, setCertUrl] = useState('');
-  const [gradeImagesUrl, setGradeImagesUrl] = useState('');
 
   // 3. Warehouse states
-  const [warehouses, setWarehouses] = useState<any[]>([]);
-  const [myWarehouseBookings, setMyWarehouseBookings] = useState<any[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [myWarehouseBookings, setMyWarehouseBookings] = useState<WarehouseBooking[]>([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState('');
   const [storageQty, setStorageQty] = useState<number>(5);
   const [storageStart, setStorageStart] = useState('');
@@ -67,8 +72,8 @@ export default function InnovativeHubPage() {
   const [whDesc, setWhDesc] = useState('');
 
   // 4. Logistics states
-  const [carriers, setCarriers] = useState<any[]>([]);
-  const [myLogisticsBookings, setMyLogisticsBookings] = useState<any[]>([]);
+  const [carriers, setCarriers] = useState<CarrierVehicle[]>([]);
+  const [myLogisticsBookings, setMyLogisticsBookings] = useState<LogisticsBooking[]>([]);
   const [selectedCarrier, setSelectedCarrier] = useState('');
   const [fromLoc, setFromLoc] = useState('');
   const [toLoc, setToLoc] = useState('');
@@ -82,10 +87,10 @@ export default function InnovativeHubPage() {
   const [drvRate, setDrvRate] = useState<number>(35);
 
   // 5. Demand Forecast states
-  const [forecasts, setForecasts] = useState<any[]>([]);
+  const [forecasts, setForecasts] = useState<ForecastItem[]>([]);
 
   // 6 & 7. Bulk Procurement states
-  const [bulkReqs, setBulkReqs] = useState<any[]>([]);
+  const [bulkReqs, setBulkReqs] = useState<BulkRequirement[]>([]);
   const [targetReqId, setTargetReqId] = useState('');
   const [quotePrice, setQuotePrice] = useState<number>(0);
   const [quoteQty, setQuoteQty] = useState<number>(0);
@@ -97,25 +102,19 @@ export default function InnovativeHubPage() {
   const [reqDate, setReqDate] = useState('');
 
   // 8. Finance states
-  const [financeApps, setFinanceApps] = useState<any[]>([]);
+  const [financeApps, setFinanceApps] = useState<FinanceApp[]>([]);
   const [financeType, setFinanceType] = useState('INVOICE_FINANCING');
   const [financeAmount, setFinanceAmount] = useState<number>(50000);
   const [financeCollateral, setFinanceCollateral] = useState('');
 
   // 9. Direct Trading states
-  const [directCrops, setDirectCrops] = useState<any[]>([]);
-  const [activeContact, setActiveContact] = useState<any>(null);
+  const [directCrops, setDirectCrops] = useState<AgriProduct[]>([]);
+  const [activeContact, setActiveContact] = useState<DirectContact | null>(null);
 
   // 10. Inventory states
-  const [inventoryAnalytics, setInventoryAnalytics] = useState<any>(null);
+  const [inventoryAnalytics, setInventoryAnalytics] = useState<{ inventory: AgriProduct[]; listingsCount: number; totalAvailableStock: number; totalSalesCount: number; totalRevenue: number; } | null>(null);
 
-  useEffect(() => {
-    if (accessToken) {
-      loadData();
-    }
-  }, [accessToken, activeTab]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const headers = { Authorization: `Bearer ${accessToken}` };
 
@@ -193,10 +192,16 @@ export default function InnovativeHubPage() {
         if (res.ok && data.success) setInventoryAnalytics(data.data);
       }
 
-    } catch (err) {
-      console.error('Error loading tab content', err);
+    } catch (_err) {
+      console.error('Error loading tab content');
     }
-  };
+  }, [accessToken, activeTab, user?.id]);
+
+  useEffect(() => {
+    if (accessToken) {
+      loadData();
+    }
+  }, [accessToken, activeTab, loadData]);
 
   const triggerAlert = (type: 'success' | 'error', text: string) => {
     if (type === 'success') {
@@ -227,7 +232,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', data.message || 'Verification submission failed.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error submitting verification.');
     }
   };
@@ -242,7 +247,7 @@ export default function InnovativeHubPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ grade: selectedGrade, labReportUrl, certificateUrl: certUrl, imagesUrl: gradeImagesUrl }),
+        body: JSON.stringify({ grade: selectedGrade, labReportUrl, certificateUrl: certUrl, imagesUrl: '' }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -251,7 +256,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', data.message || 'Grading update failed.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -275,7 +280,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', 'Listing creation failed.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -299,7 +304,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', data.message || 'Booking failed.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -324,7 +329,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', 'Carrier registration failed.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -348,7 +353,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', data.message || 'Transport booking failed.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -373,7 +378,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', 'Failed to publish requirement.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -397,7 +402,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', 'Failed to submit quotation bid.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -420,7 +425,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', 'Application submission failed.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -436,7 +441,7 @@ export default function InnovativeHubPage() {
       } else {
         triggerAlert('error', 'Failed to retrieve direct contact data.');
       }
-    } catch (err) {
+    } catch (_err) {
       triggerAlert('error', 'Network error.');
     }
   };
@@ -510,7 +515,7 @@ export default function InnovativeHubPage() {
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id as any);
+                  setActiveTab(tab.id as 'verification' | 'grading' | 'warehouse' | 'logistics' | 'forecast' | 'bulk' | 'finance' | 'direct' | 'inventory');
                   setActiveContact(null);
                 }}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
@@ -828,6 +833,8 @@ export default function InnovativeHubPage() {
                     <label className="text-slate-400 block">QUANTITY (TONS)</label>
                     <input
                       type="number"
+                      aria-label="Storage quantity in tons"
+                      placeholder="e.g. 50"
                       value={storageQty}
                       onChange={(e) => setStorageQty(Number(e.target.value))}
                       className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
@@ -1455,7 +1462,7 @@ export default function InnovativeHubPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12 text-slate-500 text-xs">
-                    Choose a crop listing on the left to reveal the grower's direct verification contacts.
+                    Choose a crop listing on the left to reveal the grower&apos;s direct verification contacts.
                   </div>
                 )}
               </div>
@@ -1516,7 +1523,7 @@ export default function InnovativeHubPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {inventoryAnalytics.inventory.map((inv: any) => (
+                          {inventoryAnalytics.inventory.map((inv: AgriProduct) => (
                             <tr key={inv.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                               <td className="p-4 font-bold text-white font-sans text-xs">{inv.title}</td>
                               <td className="p-4 text-slate-300">{inv.cropType}</td>

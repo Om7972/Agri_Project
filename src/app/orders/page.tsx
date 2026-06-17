@@ -94,6 +94,7 @@ export default function OrdersPage() {
     }
   }, [accessToken]);
 
+  // eslint-disable-next-line react-compiler/react-hooks
   useEffect(() => {
     if (user && accessToken) {
       fetchOrders();

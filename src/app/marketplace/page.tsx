@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/navbar/Navbar';
 import Footer from '@/components/footer/Footer';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useMarketStore } from '@/store/useMarketStore';
 import { getTranslation, TransKeys } from '@/utils/translations';
@@ -11,24 +12,38 @@ import {
   Search,
   Sparkles,
   Shield,
-  Tag,
   Calendar,
-  MapPin,
-  Scale,
   MessageSquare,
-  ArrowRight,
   X,
   Plus,
   Trash2,
   Check,
   RefreshCw,
   AlertCircle,
-  FileText,
   TrendingUp,
-  Activity,
-  Layers,
-  Star
+  Activity
 } from 'lucide-react';
+
+// ---- Domain interfaces ----
+interface Product {
+  id: string;
+  title: string;
+  cropType: string;
+  grade: string;
+  unit: string;
+  price: number;
+  stock: number;
+  imageUrl?: string;
+  description?: string;
+  harvestDate?: string;
+  sellerVerification?: string;
+  seller?: { trustScore?: number; email?: string };
+  [key: string]: unknown;
+}
+interface Category { id: string; name: string; }
+interface SavedSearch { id: string; query: string; createdAt: string; }
+interface PriceAlert { id: string; cropType: string; targetPrice: number; condition: string; }
+interface ParsedBadges { cropType?: string; maxPrice?: number; location?: string; [key: string]: unknown; }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -39,15 +54,16 @@ export default function MarketplacePage() {
   // Translations helper
   const t = (key: TransKeys) => getTranslation(language, key);
 
+  const router = useRouter();
+
   // Core State
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
-  const [aiParsedBadges, setAiParsedBadges] = useState<any | null>(null);
+  const [aiParsedBadges, setAiParsedBadges] = useState<ParsedBadges | null>(null);
   const [filters, setFilters] = useState({
     cropType: '',
     grade: '',
@@ -59,13 +75,13 @@ export default function MarketplacePage() {
   // Modals & Panels State
   const [showListModal, setShowListModal] = useState(false);
   const [showPriceAlertModal, setShowPriceAlertModal] = useState(false);
-  const [compareList, setCompareList] = useState<any[]>([]);
-  const [savedSearches, setSavedSearches] = useState<any[]>([]);
-  const [priceAlerts, setPriceAlerts] = useState<any[]>([]);
+  const [compareList, setCompareList] = useState<Product[]>([]);
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const [priceAlerts, setPriceAlerts] = useState<PriceAlert[]>([]);
   const [activeTab, setActiveTab] = useState<'listings' | 'alerts' | 'compare'>('listings');
 
   // Order/Bid Modal State
-  const [bidModalProduct, setBidModalProduct] = useState<any | null>(null);
+  const [bidModalProduct, setBidModalProduct] = useState<Product | null>(null);
   const [bidQuantity, setBidQuantity] = useState<number>(1);
   const [bidSuccess, setBidSuccess] = useState(false);
 
@@ -91,17 +107,7 @@ export default function MarketplacePage() {
     condition: 'GREATER_THAN',
   });
 
-  // Initial Data Fetch
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-    if (user && accessToken) {
-      fetchSavedSearches();
-      fetchPriceAlerts();
-    }
-  }, [accessToken, filters]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams();
@@ -116,15 +122,14 @@ export default function MarketplacePage() {
       if (response.ok) {
         setProducts(result.data || []);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError('Failed to retrieve listings.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/products/categories`);
       const result = await response.json();
@@ -134,9 +139,9 @@ export default function MarketplacePage() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
-  const fetchSavedSearches = async () => {
+  const fetchSavedSearches = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/agri/saved-searches`, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -148,9 +153,9 @@ export default function MarketplacePage() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [accessToken]);
 
-  const fetchPriceAlerts = async () => {
+  const fetchPriceAlerts = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/agri/price-alerts`, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -162,7 +167,17 @@ export default function MarketplacePage() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [accessToken]);
+
+  // Initial Data Fetch
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+    if (user && accessToken) {
+      fetchSavedSearches();
+      fetchPriceAlerts();
+    }
+  }, [accessToken, filters, user, fetchProducts, fetchCategories, fetchSavedSearches, fetchPriceAlerts]);
 
   // AI Smart Search
   const handleAiSearch = async (e: React.FormEvent) => {
@@ -178,11 +193,11 @@ export default function MarketplacePage() {
           setAiParsedBadges(result.data.parsed);
         }
       } else {
-        setError(result.message || 'AI Search failed.');
+        alert(result.message || 'AI Search failed.');
       }
     } catch (err) {
       console.error(err);
-      setError('AI Search system is currently offline.');
+      alert('AI Search system is currently offline.');
     } finally {
       setLoading(false);
     }
@@ -333,7 +348,7 @@ export default function MarketplacePage() {
   };
 
   // Initialize Negotiation Chat
-  const handleStartNegotiation = async (product: any) => {
+  const handleStartNegotiation = async (product: Product) => {
     if (!user) {
       alert('Please log in to negotiate prices.');
       return;
@@ -352,7 +367,7 @@ export default function MarketplacePage() {
       });
       const result = await response.json();
       if (response.ok) {
-        window.location.href = `/chat?id=${result.data.id}`;
+        router.push(`/chat?id=${result.data.id}`);
       } else {
         alert(result.message || 'Negotiation details initialized.');
       }
@@ -362,7 +377,7 @@ export default function MarketplacePage() {
   };
 
   // Comparison logic
-  const toggleCompare = (product: any) => {
+  const toggleCompare = (product: Product) => {
     if (compareList.find((p) => p.id === product.id)) {
       setCompareList(compareList.filter((p) => p.id !== product.id));
     } else {
@@ -721,7 +736,7 @@ export default function MarketplacePage() {
                   {savedSearches.map((item) => (
                     <div key={item.id} className="flex justify-between items-center p-4 bg-slate-950 border border-white/5 rounded-xl">
                       <div>
-                        <strong className="text-sm text-white block">"{item.query}"</strong>
+                        <strong className="text-sm text-white block">&quot;{item.query}&quot;</strong>
                         <span className="text-[10px] text-slate-500 font-mono block mt-1">
                           Created: {new Date(item.createdAt).toLocaleDateString()}
                         </span>
@@ -889,6 +904,8 @@ export default function MarketplacePage() {
                   <label className="text-xs text-slate-400 font-semibold">Procurement Quantity ({bidModalProduct.unit}s)</label>
                   <input
                     type="number"
+                    aria-label="Procurement quantity"
+                    placeholder="e.g. 5"
                     min={1}
                     max={bidModalProduct.stock}
                     value={bidQuantity}
@@ -959,6 +976,7 @@ export default function MarketplacePage() {
                   <label className="text-[10px] text-slate-400 font-semibold">Crop Category ID (UUID)</label>
                   <select
                     required
+                    aria-label="Crop category"
                     value={newCrop.categoryId}
                     onChange={(e) => setNewCrop({ ...newCrop, categoryId: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs focus:outline-none focus:border-teal-500 text-white"
