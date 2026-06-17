@@ -12,6 +12,12 @@ import analyticsRoutes from './analytics.routes';
 import adminRoutes from './admin.routes';
 import agriRoutes from './agri.routes';
 import innovativeRoutes from './innovative.routes';
+import walletRoutes from './wallet.routes';
+import escrowRoutes from './escrow.routes';
+import disputeRoutes from './dispute.routes';
+import crmRoutes from './crm.routes';
+import documentRoutes from './document.routes';
+import systemRoutes from './system.routes';
 
 const router = Router();
 
@@ -28,5 +34,11 @@ router.use('/analytics', analyticsRoutes);
 router.use('/admin', adminRoutes);
 router.use('/agri', agriRoutes);
 router.use('/innovative', innovativeRoutes);
+router.use('/wallet', walletRoutes);
+router.use('/escrow', escrowRoutes);
+router.use('/disputes', disputeRoutes);
+router.use('/crm', crmRoutes);
+router.use('/documents', documentRoutes);
+router.use('/system', systemRoutes);
 
 export default router;

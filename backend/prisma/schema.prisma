@@ -7,10 +7,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ==================== ENUMS ====================
+
 enum Role {
   FARMER
   BUYER
   EXPORTER
+  WAREHOUSE_MANAGER
+  TRANSPORTER
   ADMIN
 }
 
@@ -53,6 +57,12 @@ enum SubscriptionStatus {
   ACTIVE
   EXPIRED
   CANCELLED
+  PAST_DUE
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
 }
 
 enum NotificationType {
@@ -64,32 +74,142 @@ enum NotificationType {
   MARKET_OPPORTUNITY
   FRAUD_ALERT
   AUCTION_OUTBID
+  DISPUTE_UPDATE
+  WALLET_UPDATE
   SYSTEM
 }
 
-model MarketReport {
-  id          String   @id @default(uuid())
-  type        String   // "daily", "weekly", "monthly"
-  data        Json
-  generatedAt DateTime @default(now())
-
-  @@index([type])
+enum ProductStatus {
+  ACTIVE
+  SOLD
+  ARCHIVED
 }
 
-model FraudAlert {
-  id         String   @id @default(uuid())
-  userId     String
-  alertType  String   // "FAKE_SELLER", "SUSPICIOUS_PRICING", "ABNORMAL_ACTIVITY", "REVIEW_MANIPULATION"
-  severity   String   // "LOW", "MEDIUM", "HIGH", "CRITICAL"
-  details    String
-  isResolved Boolean  @default(false)
-  resolvedBy String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([userId])
-  @@index([isResolved])
+enum DocumentType {
+  PHYTOSANITARY
+  BILL_OF_LADING
+  CERTIFICATE_OF_ORIGIN
+  CUSTOMS_DECLARATION
+  COMMERCIAL_INVOICE
 }
+
+enum DocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ShipmentStatus {
+  BOOKED
+  PORT_OF_ORIGIN
+  IN_TRANSIT
+  PORT_OF_DESTINATION
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum LogisticsStatus {
+  ASSIGNED
+  EN_ROUTE
+  DISPATCHED
+  DELIVERED
+}
+
+enum PaymentGateway {
+  STRIPE
+  RAZORPAY
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  MEDIATOR_ASSIGNED
+  EVIDENCE_REQUESTED
+  RESOLVED_BUYER
+  RESOLVED_SELLER
+  CLOSED
+  ESCALATED
+}
+
+enum EscrowStatus {
+  FUNDED
+  HELD
+  RELEASED
+  REFUNDED
+  DISPUTED
+}
+
+enum WalletTxnType {
+  CREDIT
+  DEBIT
+  CASHBACK
+  WITHDRAWAL
+  REFUND
+  ESCROW_HOLD
+  ESCROW_RELEASE
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL_SENT
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum PipelineStage {
+  PROSPECTING
+  QUALIFICATION
+  PROPOSAL
+  NEGOTIATION
+  CLOSING
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum DocCenterType {
+  INVOICE
+  CONTRACT
+  CERTIFICATE
+  LAB_REPORT
+  OTHER
+}
+
+enum AuditCategory {
+  AUTH
+  ORDER
+  PAYMENT
+  USER_ACTION
+  SECURITY
+  SYSTEM
+  DISPUTE
+  SUBSCRIPTION
+  WALLET
+}
+
+enum TenantRegion {
+  INDIA
+  DUBAI
+  GLOBAL
+}
+
+// ==================== CORE MODELS ====================
 
 model User {
   id               String            @id @default(uuid())
@@ -97,6 +217,7 @@ model User {
   passwordHash     String
   role             Role              @default(BUYER)
   trustScore       Float             @default(80.0)
+  tenantRegion     TenantRegion      @default(INDIA)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   profile          Profile?
@@ -117,8 +238,15 @@ model User {
   transactions     Transaction[]
   savedSearches    SavedSearch[]
   priceAlerts      PriceAlert[]
-  buyerNegotiations Negotiation[]    @relation("BuyerNegotiations")
+  buyerNegotiations  Negotiation[]   @relation("BuyerNegotiations")
   sellerNegotiations Negotiation[]   @relation("SellerNegotiations")
+  wallet           Wallet?
+  disputesOpened   Dispute[]         @relation("DisputeOpener")
+  disputesAgainst  Dispute[]         @relation("DisputeTarget")
+  disputeMessages  DisputeMessage[]
+  crmLeadsOwned    CrmLead[]         @relation("LeadOwner")
+  crmNotes         CrmNote[]
+  followUps        FollowUp[]
 }
 
 model RefreshToken {
@@ -146,6 +274,8 @@ model Profile {
   updatedAt   DateTime @updatedAt
 }
 
+// ==================== PRODUCT & MARKET ====================
+
 model Category {
   id          String    @id @default(uuid())
   name        String    @unique
@@ -154,12 +284,6 @@ model Category {
   products    Product[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-}
-
-enum ProductStatus {
-  ACTIVE
-  SOLD
-  ARCHIVED
 }
 
 model Product {
@@ -203,6 +327,16 @@ model MarketRate {
   updatedAt     DateTime @updatedAt
 }
 
+model MarketReport {
+  id          String   @id @default(uuid())
+  type        String
+  data        Json
+  generatedAt DateTime @default(now())
+  @@index([type])
+}
+
+// ==================== ORDERS & PAYMENTS ====================
+
 model Order {
   id            String        @id @default(uuid())
   buyerId       String
@@ -217,6 +351,8 @@ model Order {
   shipment      Shipment?
   transactions  Transaction[]
   contract      Contract?
+  escrow        Escrow?
+  disputes      Dispute[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -229,6 +365,249 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Float
   price     Float
+}
+
+// ==================== ESCROW ====================
+
+model Escrow {
+  id             String       @id @default(uuid())
+  orderId        String       @unique
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount         Float
+  currency       String       @default("INR")
+  status         EscrowStatus @default(FUNDED)
+  fundedAt       DateTime     @default(now())
+  releasedAt     DateTime?
+  refundedAt     DateTime?
+  gatewayRef     String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// ==================== WALLET ====================
+
+model Wallet {
+  id           String             @id @default(uuid())
+  userId       String             @unique
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance      Float              @default(0)
+  currency     String             @default("INR")
+  transactions WalletTransaction[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model WalletTransaction {
+  id          String       @id @default(uuid())
+  walletId    String
+  wallet      Wallet       @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  type        WalletTxnType
+  amount      Float
+  description String?
+  referenceId String?
+  createdAt   DateTime     @default(now())
+  @@index([walletId])
+}
+
+// ==================== DISPUTE RESOLUTION ====================
+
+model Dispute {
+  id           String          @id @default(uuid())
+  orderId      String
+  order        Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  openedById   String
+  openedBy     User            @relation("DisputeOpener", fields: [openedById], references: [id])
+  againstId    String
+  against      User            @relation("DisputeTarget", fields: [againstId], references: [id])
+  reason       String
+  description  String
+  status       DisputeStatus   @default(OPEN)
+  mediatorNote String?
+  resolvedAt   DateTime?
+  messages     DisputeMessage[]
+  evidence     DisputeEvidence[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  @@index([orderId])
+  @@index([openedById])
+}
+
+model DisputeMessage {
+  id         String   @id @default(uuid())
+  disputeId  String
+  dispute    Dispute  @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     User     @relation(fields: [senderId], references: [id])
+  content    String
+  isMediator Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model DisputeEvidence {
+  id         String   @id @default(uuid())
+  disputeId  String
+  dispute    Dispute  @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  fileUrl    String
+  fileType   String
+  uploadedBy String
+  notes      String?
+  createdAt  DateTime @default(now())
+}
+
+// ==================== CRM ====================
+
+model CrmLead {
+  id           String        @id @default(uuid())
+  ownerId      String
+  owner        User          @relation("LeadOwner", fields: [ownerId], references: [id])
+  contactName  String
+  contactEmail String?
+  contactPhone String?
+  company      String?
+  source       String?
+  status       LeadStatus    @default(NEW)
+  stage        PipelineStage @default(PROSPECTING)
+  value        Float?
+  notes        CrmNote[]
+  followUps    FollowUp[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  @@index([ownerId])
+  @@index([status])
+}
+
+model CrmNote {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      CrmLead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model FollowUp {
+  id          String   @id @default(uuid())
+  leadId      String
+  lead        CrmLead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  assigneeId  String
+  assignee    User     @relation(fields: [assigneeId], references: [id])
+  title       String
+  description String?
+  dueDate     DateTime
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+}
+
+// ==================== DOCUMENT CENTER ====================
+
+model Document {
+  id          String        @id @default(uuid())
+  ownerId     String
+  type        DocCenterType
+  title       String
+  fileUrl     String
+  fileSize    Int?
+  mimeType    String?
+  version     Int           @default(1)
+  parentId    String?
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  @@index([ownerId])
+  @@index([type])
+}
+
+// ==================== SUBSCRIPTIONS (SaaS) ====================
+
+model Subscription {
+  id             String             @id @default(uuid())
+  userId         String
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier           SubscriptionTier
+  billingCycle   BillingCycle       @default(MONTHLY)
+  price          Float
+  status         SubscriptionStatus @default(ACTIVE)
+  gateway        PaymentGateway?
+  gatewaySubId   String?
+  maxProducts    Int                @default(10)
+  maxOrders      Int                @default(50)
+  maxStorageMb   Int                @default(500)
+  analyticsAccess Boolean           @default(false)
+  startDate      DateTime           @default(now())
+  endDate        DateTime
+  transactions   Transaction[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+}
+
+// ==================== FEATURE FLAGS ====================
+
+model FeatureFlag {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String?
+  enabled     Boolean  @default(false)
+  percentage  Int      @default(100)
+  roles       String[]
+  regions     String[]
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([key])
+}
+
+// ==================== TENANT CONFIG ====================
+
+model TenantConfig {
+  id             String       @id @default(uuid())
+  region         TenantRegion @unique
+  currency       String
+  currencySymbol String
+  taxRate        Float        @default(0)
+  timezone       String
+  supportEmail   String?
+  settings       Json?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// ==================== AUDIT LOGS (Enhanced) ====================
+
+model AuditLog {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  category  AuditCategory @default(USER_ACTION)
+  resource  String?
+  resourceId String?
+  details   String?
+  metadata  Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime      @default(now())
+  @@index([userId])
+  @@index([category])
+  @@index([createdAt])
+}
+
+// ==================== EXISTING MODELS (preserved) ====================
+
+model FraudAlert {
+  id         String   @id @default(uuid())
+  userId     String
+  alertType  String
+  severity   String
+  details    String
+  isResolved Boolean  @default(false)
+  resolvedBy String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([userId])
+  @@index([isResolved])
 }
 
 model Auction {
@@ -275,20 +654,6 @@ model Review {
   updatedAt   DateTime @updatedAt
 }
 
-model Subscription {
-  id        String             @id @default(uuid())
-  userId    String
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tier      SubscriptionTier
-  price     Float
-  status    SubscriptionStatus @default(ACTIVE)
-  startDate DateTime           @default(now())
-  endDate   DateTime
-  transactions Transaction[]
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-}
-
 model Notification {
   id        String           @id @default(uuid())
   userId    String
@@ -325,7 +690,7 @@ model ChatMessage {
   id        String      @id @default(uuid())
   sessionId String
   session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  role      String      // "user" or "assistant"
+  role      String
   content   String
   createdAt DateTime    @default(now())
 }
@@ -338,32 +703,8 @@ model PricePrediction {
   expectedPrice   Float
   bestMarket      String
   confidenceScore Float
-  trend           String   // "UP", "DOWN", "STABLE"
+  trend           String
   createdAt       DateTime @default(now())
-}
-
-enum DocumentType {
-  PHYTOSANITARY
-  BILL_OF_LADING
-  CERTIFICATE_OF_ORIGIN
-  CUSTOMS_DECLARATION
-  COMMERCIAL_INVOICE
-}
-
-enum DocumentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum ShipmentStatus {
-  BOOKED
-  PORT_OF_ORIGIN
-  IN_TRANSIT
-  PORT_OF_DESTINATION
-  OUT_FOR_DELIVERY
-  DELIVERED
-  CANCELLED
 }
 
 model Shipment {
@@ -396,13 +737,6 @@ model ExportDocument {
   updatedAt    DateTime       @updatedAt
 }
 
-enum LogisticsStatus {
-  ASSIGNED
-  EN_ROUTE
-  DISPATCHED
-  DELIVERED
-}
-
 model LogisticsBooking {
   id               String          @id @default(uuid())
   driverName       String
@@ -415,18 +749,6 @@ model LogisticsBooking {
   shipments        Shipment[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
-}
-
-enum PaymentGateway {
-  STRIPE
-  RAZORPAY
-}
-
-enum TransactionStatus {
-  PENDING
-  SUCCESS
-  FAILED
-  REFUNDED
 }
 
 model Transaction {
@@ -447,16 +769,6 @@ model Transaction {
   updatedAt        DateTime          @updatedAt
 }
 
-model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action    String
-  details   String?
-  ipAddress String?
-  createdAt DateTime @default(now())
-}
-
 model SavedSearch {
   id        String   @id @default(uuid())
   userId    String
@@ -472,7 +784,7 @@ model PriceAlert {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   cropType    String
   targetPrice Float
-  condition   String   // "GREATER_THAN" or "LESS_THAN"
+  condition   String
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -488,7 +800,7 @@ model Negotiation {
   product       Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
   originalPrice Float
   currentPrice  Float
-  status        String               @default("PENDING") // "PENDING", "ACCEPTED", "REJECTED"
+  status        String               @default("PENDING")
   messages      NegotiationMessage[]
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
@@ -513,12 +825,6 @@ model Contract {
   createdAt     DateTime @default(now())
 }
 
-enum VerificationStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 model SellerVerification {
   id               String             @id @default(uuid())
   userId           String             @unique
@@ -534,7 +840,7 @@ model QualityGrading {
   id             String   @id @default(uuid())
   productId      String   @unique
   product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  grade          String   // PREMIUM, GRADE_A, GRADE_B, GRADE_C
+  grade          String
   labReportUrl   String?
   certificateUrl String?
   imagesUrl      String?
@@ -550,7 +856,7 @@ model WarehouseSpace {
   availableTons Float
   ratePerTonDay Float
   description   String?
-  status        String             @default("ACTIVE") // ACTIVE, FULL, ARCHIVED
+  status        String             @default("ACTIVE")
   bookings      WarehouseBooking[]
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
@@ -565,7 +871,7 @@ model WarehouseBooking {
   startDate    DateTime
   endDate      DateTime
   totalCost    Float
-  status       String         @default("BOOKED") // BOOKED, IN_STORAGE, COMPLETED, CANCELLED
+  status       String         @default("BOOKED")
   createdAt    DateTime       @default(now())
 }
 
@@ -574,11 +880,11 @@ model TransportCarrier {
   driverName    String
   driverPhone   String
   vehicleNumber String
-  vehicleType   String             // TRUCK, CONTAINER, TEMPO
+  vehicleType   String
   capacityTons  Float
   ratePerKm     Float
   activeRoute   String?
-  currentStatus String             @default("AVAILABLE") // AVAILABLE, BOOKED, OFFLINE
+  currentStatus String             @default("AVAILABLE")
   bookings      TransportBooking[]
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
@@ -593,17 +899,17 @@ model TransportBooking {
   toLocation       String
   estimatedKm      Float
   totalCost        Float
-  status           String           @default("BOOKED") // BOOKED, IN_TRANSIT, DELIVERED, CANCELLED
+  status           String           @default("BOOKED")
   createdAt        DateTime         @default(now())
 }
 
 model DemandForecast {
   id                 String   @id @default(uuid())
   cropType           String   @unique
-  demandScore        Float    // 0 to 100
-  demandLevel        String   // HIGH, MEDIUM, LOW
+  demandScore        Float
+  demandLevel        String
   opportunityDetails String?
-  expectedPriceTrend String   // UP, DOWN, STABLE
+  expectedPriceTrend String
   updatedAt          DateTime @updatedAt
 }
 
@@ -614,7 +920,7 @@ model BulkRequirement {
   quantityTons Float
   budgetPrice  Float
   deliveryDate DateTime
-  status       String            @default("OPEN") // OPEN, CLOSED, FULFILLED
+  status       String            @default("OPEN")
   quotations   FarmerQuotation[]
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
@@ -628,20 +934,18 @@ model FarmerQuotation {
   offeredPrice  Float
   quantityTons  Float
   notes         String?
-  status        String          @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  status        String          @default("PENDING")
   createdAt     DateTime        @default(now())
 }
 
 model TradeFinanceApplication {
   id                String   @id @default(uuid())
   userId            String
-  type              String   // INVOICE_FINANCING, WORKING_CAPITAL, PURCHASE_LOAN
+  type              String
   amount            Float
-  status            String   @default("PENDING") // PENDING, APPROVED, REJECTED, DISBURSED
+  status            String   @default("PENDING")
   collateralDetails String?
   documentsUrl      String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
-
-

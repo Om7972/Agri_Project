@@ -67,6 +67,7 @@ export default function Navbar() {
           <div className="relative flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl px-2.5 py-1 text-xs text-slate-300 font-semibold cursor-pointer hover:bg-white/10 transition-colors">
             <Globe className="h-3.5 w-3.5 text-teal-400" />
             <select
+              suppressHydrationWarning
               value={language}
               onChange={handleLanguageChange}
               aria-label="Select Language"
@@ -162,6 +163,7 @@ export default function Navbar() {
               <div className="flex items-center justify-between border-b border-white/5 pb-4 md:hidden">
                 <span className="text-xs text-slate-400 font-semibold">Select Language:</span>
                 <select
+                  suppressHydrationWarning
                   value={language}
                   onChange={handleLanguageChange}
                   aria-label="Select Language"
