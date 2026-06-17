@@ -1,5 +1,5 @@
 import prisma from '@/config/db';
-import { NotFoundError, BadRequestError } from '@/utils/apiErrors';
+import { NotFoundError } from '@/utils/apiErrors';
 
 export class AiService {
   /**
@@ -444,7 +444,7 @@ export class AiService {
 
     // --- Documentation Check ---
     const requiredDocs = ['PHYTOSANITARY', 'CERTIFICATE_OF_ORIGIN', 'COMMERCIAL_INVOICE'];
-    const missingDocs = requiredDocs.filter((d) => !docTypes.has(d as any));
+    const missingDocs = requiredDocs.filter((d) => !docTypes.has(d as string));
     const docScore =
       missingDocs.length === 0 ? { score: 100, status: 'PASS' as const, details: 'All required export documents present' }
       : missingDocs.length <= 1 ? { score: 65, status: 'WARN' as const, details: `Missing: ${missingDocs.join(', ')}` }
@@ -719,66 +719,6 @@ export class AiService {
         trend: r.changeIndia > 0 ? 'UP' : 'DOWN',
       })),
       generatedAt: new Date(),
-    };
-  }
-}
-
-    // 1. Supply Analysis: Group active stocks by cropType
-    const rawSupply = await prisma.product.groupBy({
-      by: ['cropType'],
-      _sum: { stock: true },
-      _count: { id: true },
-      where: { status: 'ACTIVE' },
-    });
-
-    const supplyAnalysis = rawSupply.map((item) => ({
-      crop: item.cropType,
-      activeListings: item._count.id,
-      totalVolumeAvailable: item._sum.stock || 0,
-    }));
-
-    // 2. Demand Analysis: Group orders and order quantities by cropType
-    const rawDemand = await prisma.orderItem.groupBy({
-      by: ['productId'],
-      _sum: { quantity: true },
-    });
-
-    // Populate crop names for product IDs
-    const demandAnalysis = [];
-    for (const item of rawDemand) {
-      const prod = await prisma.product.findUnique({
-        where: { id: item.productId },
-        select: { cropType: true },
-      });
-      if (prod) {
-        demandAnalysis.push({
-          crop: prod.cropType,
-          totalUnitsDemanded: item._sum.quantity || 0,
-        });
-      }
-    }
-
-    // 3. Price Trends: Get average list prices per crop
-    const rawTrends = await prisma.product.groupBy({
-      by: ['cropType'],
-      _avg: { price: true },
-      _min: { price: true },
-      _max: { price: true },
-      where: { status: 'ACTIVE' },
-    });
-
-    const priceTrends = rawTrends.map((item) => ({
-      crop: item.cropType,
-      averagePrice: item._avg.price || 0,
-      minPrice: item._min.price || 0,
-      maxPrice: item._max.price || 0,
-    }));
-
-    return {
-      supplyAnalysis,
-      demandAnalysis,
-      priceTrends,
-      timestamp: new Date(),
     };
   }
 

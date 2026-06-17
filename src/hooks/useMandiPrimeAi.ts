@@ -1,5 +1,19 @@
 import { useState, useCallback } from 'react';
 
+export interface ChatSession {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'USER' | 'ASSISTANT';
+  content: string;
+  createdAt: string;
+}
+
 // MandiPrime Base API URL configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -18,7 +32,7 @@ const getAuthHeaders = (): Record<string, string> => {
 export function useCropPricePrediction() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<any | null>(null);
+  const [data, setData] = useState<unknown>(null);
 
   const predict = useCallback(async (crop: string, quantity: number, location: string) => {
     setLoading(true);
@@ -38,8 +52,9 @@ export function useCropPricePrediction() {
       }
       setData(resData.data);
       return resData.data;
-    } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -55,7 +70,7 @@ export function useCropPricePrediction() {
 export function useBuyerSellerMatching() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [matchData, setMatchData] = useState<any | null>(null);
+  const [matchData, setMatchData] = useState<unknown>(null);
 
   const calculateMatch = useCallback(async (buyerId: string, sellerId: string) => {
     setLoading(true);
@@ -72,8 +87,9 @@ export function useBuyerSellerMatching() {
       }
       setMatchData(resData.data);
       return resData.data;
-    } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -89,7 +105,7 @@ export function useBuyerSellerMatching() {
 export function useAiRecommendations() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [recommendations, setRecommendations] = useState<any | null>(null);
+  const [recommendations, setRecommendations] = useState<unknown>(null);
 
   const fetchRecommendations = useCallback(async () => {
     setLoading(true);
@@ -106,8 +122,9 @@ export function useAiRecommendations() {
       }
       setRecommendations(resData.data);
       return resData.data;
-    } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -123,7 +140,7 @@ export function useAiRecommendations() {
 export function useMarketIntelligence() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [intelligenceData, setIntelligenceData] = useState<any | null>(null);
+  const [intelligenceData, setIntelligenceData] = useState<unknown>(null);
 
   const fetchIntelligence = useCallback(async () => {
     setLoading(true);
@@ -139,8 +156,9 @@ export function useMarketIntelligence() {
       }
       setIntelligenceData(resData.data);
       return resData.data;
-    } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -157,8 +175,8 @@ export function useAiAssistant() {
   const [loading, setLoading] = useState(false);
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   // 1. Fetch user's chat sessions
@@ -174,8 +192,9 @@ export function useAiAssistant() {
       if (!response.ok) throw new Error(resData.message || 'Failed to load chat sessions.');
       setSessions(resData.data);
       return resData.data;
-    } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
     } finally {
       setSessionsLoading(false);
     }
@@ -200,8 +219,9 @@ export function useAiAssistant() {
       setActiveSessionId(resData.data.id);
       setMessages([]);
       return resData.data;
-    } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -222,8 +242,9 @@ export function useAiAssistant() {
       setMessages(resData.data);
       setActiveSessionId(sessionId);
       return resData.data;
-    } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
       throw err;
     } finally {
       setLoading(false);
@@ -257,8 +278,9 @@ export function useAiAssistant() {
         resData.data.assistantMessage,
       ]);
       return resData.data;
-    } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
       throw err;
     } finally {
       setLoading(false);

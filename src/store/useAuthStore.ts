@@ -16,6 +16,18 @@ export interface UserInfo {
   country?: string;
 }
 
+export interface RegisterPayload {
+  email: string;
+  password?: string;
+  role: UserRole;
+  fullName?: string;
+  phone?: string;
+  companyName?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+}
+
 interface AuthState {
   user: UserInfo | null;
   accessToken: string | null;
@@ -23,7 +35,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (payload: any) => Promise<boolean>;
+  register: (payload: RegisterPayload) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
 }
@@ -72,15 +84,16 @@ export const useAuthStore = create<AuthState>()(
           });
 
           return true;
-        } catch (err: any) {
-          set({ error: err.message || 'An error occurred during login.' });
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'An error occurred during login.';
+          set({ error: message });
           return false;
         } finally {
           set({ loading: false });
         }
       },
 
-      register: async (payload) => {
+      register: async (payload: RegisterPayload) => {
         set({ loading: true, error: null });
         try {
           const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -112,8 +125,9 @@ export const useAuthStore = create<AuthState>()(
           });
 
           return true;
-        } catch (err: any) {
-          set({ error: err.message || 'An error occurred during registration.' });
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'An error occurred during registration.';
+          set({ error: message });
           return false;
         } finally {
           set({ loading: false });

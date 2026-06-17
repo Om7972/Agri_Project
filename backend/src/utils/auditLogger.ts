@@ -21,9 +21,10 @@ export class AuditLogger {
         },
       });
       return logEntry;
-    } catch (error: any) {
+    } catch (error) {
       // Never block application execution if audit logging fails
-      logger.error('Failed to write audit log entry:', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error('Failed to write audit log entry:', message);
       return null;
     }
   }

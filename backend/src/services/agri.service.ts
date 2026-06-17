@@ -1,7 +1,13 @@
 import prisma from '@/config/db';
 import { NotFoundError, BadRequestError, ForbiddenError } from '@/utils/apiErrors';
 import { NotificationService } from '@/services/notification.service';
-import { NotificationType } from '@prisma/client';
+import { NotificationType, Prisma, Product } from '@prisma/client';
+
+interface SavedSearchFilters {
+  cropType?: string;
+  maxPrice?: number;
+  grade?: string;
+}
 
 export class AgriService {
   /**
@@ -61,7 +67,7 @@ export class AgriService {
     }
 
     // Build query
-    const whereClause: any = {
+    const whereClause: Prisma.ProductWhereInput = {
       status: 'ACTIVE',
     };
 
@@ -120,12 +126,12 @@ export class AgriService {
   /**
    * 2. Saved Searches Management
    */
-  public static async createSavedSearch(userId: string, query: string, filters: any) {
+  public static async createSavedSearch(userId: string, query: string, filters: SavedSearchFilters) {
     return prisma.savedSearch.create({
       data: {
         userId,
         query,
-        filters: filters || {},
+        filters: (filters || {}) as unknown as Prisma.InputJsonValue,
       },
     });
   }
@@ -145,14 +151,14 @@ export class AgriService {
   }
 
   // Trigger matches for saved searches when a new product is listed
-  public static async checkSavedSearches(product: any) {
+  public static async checkSavedSearches(product: Product) {
     try {
       const activeSearches = await prisma.savedSearch.findMany({
         include: { user: true },
       });
 
       for (const search of activeSearches) {
-        const filters = search.filters as any;
+        const filters = (search.filters || {}) as SavedSearchFilters;
         let matches = true;
 
         // Check crop type match
@@ -194,8 +200,9 @@ export class AgriService {
           );
         }
       }
-    } catch (err: any) {
-      console.error('Error matching saved searches:', err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('Error matching saved searches:', message);
     }
   }
 
@@ -229,7 +236,7 @@ export class AgriService {
   }
 
   // Trigger matches for price alerts when product is listed or commodity rate changes
-  public static async checkPriceAlerts(product: any) {
+  public static async checkPriceAlerts(product: Product) {
     try {
       const activeAlerts = await prisma.priceAlert.findMany({
         where: {
@@ -279,8 +286,9 @@ export class AgriService {
           });
         }
       }
-    } catch (err: any) {
-      console.error('Error matching price alerts:', err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('Error matching price alerts:', message);
     }
   }
 

@@ -69,6 +69,7 @@ export default function Navbar() {
             <select
               value={language}
               onChange={handleLanguageChange}
+              aria-label="Select Language"
               className="bg-transparent border-none focus:outline-none focus:ring-0 cursor-pointer pr-1 text-xs"
             >
               <option value="en" className="bg-slate-950 text-white">English (EN)</option>
@@ -163,6 +164,7 @@ export default function Navbar() {
                 <select
                   value={language}
                   onChange={handleLanguageChange}
+                  aria-label="Select Language"
                   className="bg-slate-900 border border-white/10 rounded-xl px-2.5 py-1 text-xs text-slate-300 font-semibold focus:outline-none"
                 >
                   <option value="en">English (EN)</option>

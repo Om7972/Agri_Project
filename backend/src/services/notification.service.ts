@@ -2,7 +2,8 @@ import nodemailer from 'nodemailer';
 import twilio from 'twilio';
 import prisma from '@/config/db';
 import { logger } from '@/utils/logger';
-import { NotificationType } from '@prisma/client';
+import { NotificationType, Role, Notification } from '@prisma/client';
+import { Server } from 'socket.io';
 
 // Configure nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -40,7 +41,7 @@ export class NotificationService {
 
       logger.info(`Email sent successfully to ${to}`);
       return true;
-    } catch (error: any) {
+    } catch (error) {
       logger.error(`Failed to send email to ${to}:`, error);
       return false;
     }
@@ -64,7 +65,7 @@ export class NotificationService {
 
       logger.info(`SMS sent successfully to ${to}`);
       return true;
-    } catch (error: any) {
+    } catch (error) {
       logger.error(`Failed to send SMS to ${to}:`, error);
       return false;
     }
@@ -78,8 +79,8 @@ export class NotificationService {
     title: string,
     message: string,
     type: NotificationType = 'INFO',
-    io?: any // Pass Socket.io server optionally
-  ): Promise<any> {
+    io?: Server
+  ): Promise<Notification | null> {
     try {
       const dbNotification = await prisma.notification.create({
         data: {
@@ -97,7 +98,7 @@ export class NotificationService {
 
       logger.info(`In-App Notification saved for user: ${userId}`);
       return dbNotification;
-    } catch (error: any) {
+    } catch (error) {
       logger.error(`Failed to create in-app notification for user ${userId}:`, error);
       return null;
     }
@@ -107,11 +108,11 @@ export class NotificationService {
    * Broadcast in-app notification to all users with a specific role
    */
   public static async broadcastToRole(
-    role: any,
+    role: Role,
     title: string,
     message: string,
     type: NotificationType = 'INFO',
-    io?: any
+    io?: Server
   ): Promise<void> {
     try {
       const users = await prisma.user.findMany({
@@ -126,7 +127,7 @@ export class NotificationService {
       if (io) {
         io.to(`role:${role}`).emit('broadcast_notification', { title, message, type });
       }
-    } catch (error: any) {
+    } catch (error) {
       logger.error(`Failed to broadcast notification to role ${role}:`, error);
     }
   }

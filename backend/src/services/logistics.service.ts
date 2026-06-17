@@ -2,6 +2,7 @@ import prisma from '@/config/db';
 import { logger } from '@/utils/logger';
 import { LogisticsStatus, ShipmentStatus } from '@prisma/client';
 import { NotFoundError } from '@/utils/apiErrors';
+import { Server } from 'socket.io';
 
 export class LogisticsService {
   /**
@@ -62,7 +63,7 @@ export class LogisticsService {
   /**
    * Update delivery status
    */
-  public static async updateStatus(bookingId: string, status: LogisticsStatus, io?: any) {
+  public static async updateStatus(bookingId: string, status: LogisticsStatus, io?: Server) {
     try {
       const booking = await prisma.logisticsBooking.update({
         where: { id: bookingId },
@@ -108,7 +109,7 @@ export class LogisticsService {
   /**
    * Update real-time GPS coordinate of truck
    */
-  public static async updateLocation(bookingId: string, lat: number, lng: number, io?: any) {
+  public static async updateLocation(bookingId: string, lat: number, lng: number, io?: Server) {
     try {
       const booking = await prisma.logisticsBooking.update({
         where: { id: bookingId },

@@ -1,5 +1,6 @@
 import prisma from '@/config/db';
 import redisClient from '@/config/redis';
+import { Prisma } from '@prisma/client';
 
 export class ReportsService {
   private static CACHE_TTL = { daily: 3600, weekly: 21600, monthly: 86400 };
@@ -27,7 +28,7 @@ export class ReportsService {
 
     // Persist to DB for audit trail
     await prisma.marketReport.create({
-      data: { type, data: report as any },
+      data: { type, data: report as unknown as Prisma.InputJsonValue },
     });
 
     return report;

@@ -3,8 +3,8 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import prisma from '@/config/db';
 import { logger } from '@/utils/logger';
-import { SubscriptionTier, SubscriptionStatus, PaymentGateway } from '@prisma/client';
-import { BadRequestError, NotFoundError } from '@/utils/apiErrors';
+import { SubscriptionTier, PaymentGateway } from '@prisma/client';
+import { BadRequestError } from '@/utils/apiErrors';
 
 // Initialize Stripe (Mocked if no key provided)
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY || '';

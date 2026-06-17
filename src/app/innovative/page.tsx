@@ -636,6 +636,7 @@ export default function InnovativeHubPage() {
                     <select
                       value={selectedProduct}
                       onChange={(e) => setSelectedProduct(e.target.value)}
+                      aria-label="Select product listing"
                       className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
                     >
                       <option value="">-- Choose Listing --</option>
@@ -650,6 +651,7 @@ export default function InnovativeHubPage() {
                     <select
                       value={selectedGrade}
                       onChange={(e) => setSelectedGrade(e.target.value)}
+                      aria-label="Certified quality grade"
                       className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
                     >
                       <option value="Premium">Premium Quality</option>
@@ -758,6 +760,8 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">CAPACITY (TONS)</label>
                       <input
                         type="number"
+                        aria-label="Warehouse capacity in tons"
+                        placeholder="e.g. 500"
                         value={whCapacity}
                         onChange={(e) => setWhCapacity(Number(e.target.value))}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 px-3 text-white focus:outline-none"
@@ -767,6 +771,8 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">DAILY RATE (₹/TON)</label>
                       <input
                         type="number"
+                        aria-label="Daily rate per ton in rupees"
+                        placeholder="e.g. 12"
                         value={whRate}
                         onChange={(e) => setWhRate(Number(e.target.value))}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 px-3 text-white focus:outline-none"
@@ -833,6 +839,7 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">START DATE</label>
                       <input
                         type="date"
+                        aria-label="Storage start date"
                         value={storageStart}
                         onChange={(e) => setStorageStart(e.target.value)}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
@@ -842,6 +849,7 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">END DATE</label>
                       <input
                         type="date"
+                        aria-label="Storage end date"
                         value={storageEnd}
                         onChange={(e) => setStorageEnd(e.target.value)}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
@@ -935,6 +943,7 @@ export default function InnovativeHubPage() {
                       <select
                         value={drvType}
                         onChange={(e) => setDrvType(e.target.value)}
+                        aria-label="Vehicle type"
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 px-3 text-white focus:outline-none"
                       >
                         <option value="TRUCK">Heavy Truck</option>
@@ -948,6 +957,8 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">CAPACITY (TONS)</label>
                       <input
                         type="number"
+                        aria-label="Carrier capacity in tons"
+                        placeholder="e.g. 20"
                         value={drvCapacity}
                         onChange={(e) => setDrvCapacity(Number(e.target.value))}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 px-3 text-white focus:outline-none"
@@ -957,6 +968,8 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">RATE (₹/KM)</label>
                       <input
                         type="number"
+                        aria-label="Rate per kilometre in rupees"
+                        placeholder="e.g. 45"
                         value={drvRate}
                         onChange={(e) => setDrvRate(Number(e.target.value))}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 px-3 text-white focus:outline-none"
@@ -1003,6 +1016,7 @@ export default function InnovativeHubPage() {
                       type="text"
                       readOnly
                       value={selectedCarrier}
+                      aria-label="Selected carrier ID"
                       className="w-full rounded-xl border border-white/5 bg-slate-900/60 py-3 px-4 text-slate-400 focus:outline-none"
                     />
                   </div>
@@ -1034,6 +1048,8 @@ export default function InnovativeHubPage() {
                     <label className="text-slate-400 block">ESTIMATED ROUTE DISTANCE (KM)</label>
                     <input
                       type="number"
+                      aria-label="Estimated route distance in kilometres"
+                      placeholder="e.g. 350"
                       value={estimatedKm}
                       onChange={(e) => setEstimatedKm(Number(e.target.value))}
                       className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
@@ -1165,6 +1181,8 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">QUANTITY (TONS)</label>
                       <input
                         type="number"
+                        aria-label="Required quantity in tons"
+                        placeholder="e.g. 50"
                         value={reqQty}
                         onChange={(e) => setReqQty(Number(e.target.value))}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 px-3 text-white focus:outline-none"
@@ -1177,6 +1195,8 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">TARGET BUDGET PRICE (₹/TON)</label>
                       <input
                         type="number"
+                        aria-label="Target budget price per ton in rupees"
+                        placeholder="e.g. 2500"
                         value={reqBudget}
                         onChange={(e) => setReqBudget(Number(e.target.value))}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 px-3 text-white focus:outline-none"
@@ -1186,6 +1206,7 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">DELIVERY BY DATE</label>
                       <input
                         type="date"
+                        aria-label="Delivery by date"
                         value={reqDate}
                         onChange={(e) => setReqDate(e.target.value)}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 px-3 text-white focus:outline-none"
@@ -1232,6 +1253,7 @@ export default function InnovativeHubPage() {
                       type="text"
                       readOnly
                       value={targetReqId}
+                      aria-label="Selected requirement ID"
                       className="w-full rounded-xl border border-white/5 bg-slate-900/60 py-3 px-4 text-slate-400 focus:outline-none"
                     />
                   </div>
@@ -1241,6 +1263,8 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">OFFERED PRICE (₹/TON)</label>
                       <input
                         type="number"
+                        aria-label="Offered price per ton in rupees"
+                        placeholder="e.g. 2400"
                         value={quotePrice}
                         onChange={(e) => setQuotePrice(Number(e.target.value))}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
@@ -1250,6 +1274,8 @@ export default function InnovativeHubPage() {
                       <label className="text-slate-400 block">QUANTITY TO OFFER (TONS)</label>
                       <input
                         type="number"
+                        aria-label="Quantity to offer in tons"
+                        placeholder="e.g. 30"
                         value={quoteQty}
                         onChange={(e) => setQuoteQty(Number(e.target.value))}
                         className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
@@ -1301,6 +1327,7 @@ export default function InnovativeHubPage() {
                     <select
                       value={financeType}
                       onChange={(e) => setFinanceType(e.target.value)}
+                      aria-label="Financing type"
                       className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"
                     >
                       <option value="INVOICE_FINANCING">Invoice Financing (Get paid on shipment)</option>
@@ -1313,6 +1340,8 @@ export default function InnovativeHubPage() {
                     <label className="text-slate-400 block">FINANCING CAPITAL REQUEST (₹)</label>
                     <input
                       type="number"
+                      aria-label="Financing capital request in rupees"
+                      placeholder="e.g. 500000"
                       value={financeAmount}
                       onChange={(e) => setFinanceAmount(Number(e.target.value))}
                       className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3 px-4 text-white focus:outline-none"

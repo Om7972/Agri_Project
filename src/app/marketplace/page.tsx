@@ -537,6 +537,7 @@ export default function MarketplacePage() {
                   <select
                     value={filters.grade}
                     onChange={(e) => setFilters({ ...filters, grade: e.target.value })}
+                    aria-label="Quality grade filter"
                     className="w-full px-3.5 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs focus:outline-none focus:border-teal-500 text-white"
                   >
                     <option value="">All Grades</option>
@@ -727,6 +728,7 @@ export default function MarketplacePage() {
                       </div>
                       <button
                         onClick={() => handleDeleteSavedSearch(item.id)}
+                        title="Delete saved search"
                         className="text-red-400 hover:text-red-300 p-2 rounded-lg border border-red-500/10 hover:border-red-500/20 bg-red-500/5 transition-all"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -757,6 +759,7 @@ export default function MarketplacePage() {
                       </div>
                       <button
                         onClick={() => handleDeletePriceAlert(item.id)}
+                        title="Delete price alert"
                         className="text-red-400 hover:text-red-300 p-2 rounded-lg border border-red-500/10 hover:border-red-500/20 bg-red-500/5 transition-all"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -870,7 +873,7 @@ export default function MarketplacePage() {
               <form onSubmit={handlePlaceEscrowBid} className="space-y-4">
                 <div className="flex justify-between items-center pb-3 border-b border-white/5">
                   <h3 className="font-bold text-lg">Initialize Escrow Procurement</h3>
-                  <button type="button" onClick={() => setBidModalProduct(null)} className="text-slate-400 hover:text-white">
+                  <button type="button" onClick={() => setBidModalProduct(null)} className="text-slate-400 hover:text-white" title="Close">
                     <X className="h-5 w-5" />
                   </button>
                 </div>
@@ -934,7 +937,7 @@ export default function MarketplacePage() {
             <form onSubmit={handleCreateCrop} className="space-y-4">
               <div className="flex justify-between items-center pb-3 border-b border-white/5">
                 <h3 className="font-bold text-lg">List Agricultural Crop</h3>
-                <button type="button" onClick={() => setShowListModal(false)} className="text-slate-400 hover:text-white">
+                <button type="button" onClick={() => setShowListModal(false)} className="text-slate-400 hover:text-white" title="Close">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -998,6 +1001,7 @@ export default function MarketplacePage() {
                   <select
                     value={newCrop.unit}
                     onChange={(e) => setNewCrop({ ...newCrop, unit: e.target.value })}
+                    aria-label="Unit of measurement"
                     className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs focus:outline-none"
                   >
                     <option value="Ton">Ton</option>
@@ -1036,6 +1040,7 @@ export default function MarketplacePage() {
                   <select
                     value={newCrop.grade}
                     onChange={(e) => setNewCrop({ ...newCrop, grade: e.target.value })}
+                    aria-label="Quality grade"
                     className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs focus:outline-none"
                   >
                     <option value="Grade A+">Grade A+ (Export Quality)</option>
@@ -1052,6 +1057,7 @@ export default function MarketplacePage() {
                   <input
                     type="date"
                     required
+                    aria-label="Harvest date"
                     value={newCrop.harvestDate}
                     onChange={(e) => setNewCrop({ ...newCrop, harvestDate: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs focus:outline-none text-slate-300"
@@ -1091,7 +1097,7 @@ export default function MarketplacePage() {
             <form onSubmit={handleCreatePriceAlert} className="space-y-4">
               <div className="flex justify-between items-center pb-3 border-b border-white/5">
                 <h3 className="font-bold text-lg">Create Price Alert</h3>
-                <button type="button" onClick={() => setShowPriceAlertModal(false)} className="text-slate-400 hover:text-white">
+                <button type="button" onClick={() => setShowPriceAlertModal(false)} className="text-slate-400 hover:text-white" title="Close">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -1128,6 +1134,7 @@ export default function MarketplacePage() {
                 <select
                   value={newPriceAlert.condition}
                   onChange={(e) => setNewPriceAlert({ ...newPriceAlert, condition: e.target.value })}
+                  aria-label="Price alert trigger condition"
                   className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs focus:outline-none"
                 >
                   <option value="GREATER_THAN">Notify when Price rises above (&gt;)</option>

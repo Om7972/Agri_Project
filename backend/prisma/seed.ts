@@ -1,4 +1,4 @@
-import { PrismaClient, Role, SubscriptionTier, SubscriptionStatus, DocumentType, DocumentStatus, ShipmentStatus, LogisticsStatus, PaymentGateway, TransactionStatus, ProductStatus, AuctionStatus } from '@prisma/client';
+import { PrismaClient, Role, SubscriptionTier, SubscriptionStatus, DocumentType, DocumentStatus, ShipmentStatus, LogisticsStatus, ProductStatus, AuctionStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -66,7 +66,7 @@ async function main() {
   });
 
   // 3. Buyer
-  const buyer = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: 'buyer@mandiprime.com',
       passwordHash,
@@ -107,7 +107,7 @@ async function main() {
   const grains = await prisma.category.create({
     data: { name: 'Grains & Cereals', slug: 'grains-cereals', description: 'Wheat, Rice, Barley, Maize' },
   });
-  const fruits = await prisma.category.create({
+  await prisma.category.create({
     data: { name: 'Fresh Fruits', slug: 'fresh-fruits', description: 'Apples, Mangoes, Grapes, Bananas' },
   });
   const spices = await prisma.category.create({
@@ -131,7 +131,7 @@ async function main() {
     },
   });
 
-  const p2 = await prisma.product.create({
+  await prisma.product.create({
     data: {
       sellerId: farmer.id,
       categoryId: spices.id,
@@ -190,7 +190,7 @@ async function main() {
   });
 
   console.log('Seeding Subscriptions...');
-  const sub = await prisma.subscription.create({
+  await prisma.subscription.create({
     data: {
       userId: exporter.id,
       tier: SubscriptionTier.PROFESSIONAL,

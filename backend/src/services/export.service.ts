@@ -1,6 +1,6 @@
 import prisma from '@/config/db';
 import { logger } from '@/utils/logger';
-import { DocumentType, DocumentStatus, ShipmentStatus } from '@prisma/client';
+import { DocumentType, DocumentStatus } from '@prisma/client';
 import { NotFoundError } from '@/utils/apiErrors';
 
 export class ExportService {

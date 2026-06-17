@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '@/config/db';
 import { AuditLogger } from '@/utils/auditLogger';
-import { Role, ProductStatus, AuctionStatus } from '@prisma/client';
-import { NotFoundError, BadRequestError } from '@/utils/apiErrors';
+import { Role, Prisma } from '@prisma/client';
+import { BadRequestError } from '@/utils/apiErrors';
 
 export class AdminController {
   /**
@@ -13,7 +13,7 @@ export class AdminController {
       const { page = 1, limit = 10, role } = req.query;
       const skip = (Number(page) - 1) * Number(limit);
 
-      const filter: any = {};
+      const filter: Prisma.UserWhereInput = {};
       if (role) {
         filter.role = role as Role;
       }

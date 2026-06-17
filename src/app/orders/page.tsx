@@ -1,29 +1,63 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from '@/components/navbar/Navbar';
 import Footer from '@/components/footer/Footer';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useMarketStore } from '@/store/useMarketStore';
 import {
   Package,
-  Calendar,
   FileText,
-  CheckCircle,
-  Truck,
-  ShieldAlert,
-  Download,
   Printer,
-  ChevronRight,
-  Info,
-  Clock,
-  ArrowRight,
-  User,
-  ExternalLink,
   Activity,
-  AlertCircle
+  AlertCircle,
+  RefreshCw,
+  X
 } from 'lucide-react';
+
+interface OrderProduct {
+  title: string;
+  cropType: string;
+  grade?: string;
+  unit?: string;
+  price?: number;
+  sellerId?: string;
+  seller?: { email?: string };
+  [key: string]: unknown;
+}
+
+interface OrderItem {
+  id: string;
+  status: string;
+  paymentStatus?: string;
+  totalPrice?: number;
+  quantity?: number;
+  buyerId?: string;
+  buyer?: { email?: string };
+  product: OrderProduct;
+}
+
+interface ContractOrder {
+  totalPrice?: number;
+  quantity?: number;
+  buyerId?: string;
+  buyer?: { email?: string };
+  product?: {
+    title?: string;
+    grade?: string;
+    unit?: string;
+    price?: number;
+    sellerId?: string;
+    seller?: { email?: string };
+  };
+}
+
+interface Contract {
+  id: string;
+  createdAt: string;
+  order?: ContractOrder;
+}
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -31,22 +65,16 @@ export default function OrdersPage() {
   const { user, accessToken } = useAuthStore();
   const { currencySymbol } = useMarketStore();
 
-  const [orders, setOrders] = useState<any[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Digital Contract Modal
-  const [contract, setContract] = useState<any | null>(null);
+  const [contract, setContract] = useState<Contract | null>(null);
   const [contractModalOpen, setContractModalOpen] = useState(false);
   const [contractLoading, setContractLoading] = useState(false);
 
-  useEffect(() => {
-    if (user && accessToken) {
-      fetchOrders();
-    }
-  }, [accessToken]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/orders`, {
@@ -64,7 +92,15 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (user && accessToken) {
+      fetchOrders();
+    }
+  }, [user, accessToken, fetchOrders]);
+
+
 
   const handleUpdateStatus = async (orderId: string, nextStatus: string) => {
     try {
@@ -388,6 +424,7 @@ export default function OrdersPage() {
                   type="button"
                   onClick={() => setContractModalOpen(false)}
                   className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition-colors"
+                  title="Close Contract"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -460,7 +497,7 @@ export default function OrdersPage() {
                 <div className="space-y-2">
                   <h4 className="font-bold text-[11px] text-slate-800 border-b border-slate-200 pb-1">3. ESCROW CONDITIONS & RESOLUTION</h4>
                   <p className="leading-relaxed">
-                    By digital signature, the Buyer warrants that the procurement funds have been fully locked in the MandiPrime Escrow Account. The escrow manager will release funds to the Seller's settlement ledger upon cargo delivery confirmation at the designated freight terminal and quality inspector verification. Any dispute will follow standard arbitration protocols.
+                    By digital signature, the Buyer warrants that the procurement funds have been fully locked in the MandiPrime Escrow Account. The escrow manager will release funds to the Seller&apos;s settlement ledger upon cargo delivery confirmation at the designated freight terminal and quality inspector verification. Any dispute will follow standard arbitration protocols.
                   </p>
                 </div>
 

@@ -217,7 +217,7 @@ export default function ChatPage() {
         <div className="w-full lg:w-80 flex flex-col rounded-2xl border border-white/5 bg-slate-900/30 overflow-hidden h-full">
           <div className="p-4 border-b border-white/5 flex justify-between items-center bg-slate-950/40">
             <h3 className="font-bold text-sm uppercase tracking-wider text-slate-300">Negotiations Chat</h3>
-            <button onClick={fetchNegotiations} className="text-slate-400 hover:text-white transition-colors">
+            <button onClick={fetchNegotiations} className="text-slate-400 hover:text-white transition-colors" title="Refresh Negotiations">
               <RefreshCw className="h-4 w-4" />
             </button>
           </div>
@@ -446,6 +446,7 @@ export default function ChatPage() {
                     type="submit"
                     disabled={sending}
                     className="p-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-lime-500 text-slate-950 font-bold hover:opacity-90 transition-all active:scale-95 disabled:opacity-50"
+                    title="Send Message"
                   >
                     <Send className="h-4 w-4" />
                   </button>
