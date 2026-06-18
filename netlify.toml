@@ -5,8 +5,3 @@
 [build.environment]
   NEXT_PUBLIC_API_URL = "https://mandiprime-api.onrender.com/api/v1"
   NODE_VERSION = "20"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
