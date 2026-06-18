@@ -166,7 +166,12 @@ export default function AIAssistantPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left: Chat interface */}
-          <div className="lg:col-span-7 rounded-3xl border border-white/5 bg-slate-900/40 p-6 shadow-2xl backdrop-blur-md flex flex-col h-[550px] justify-between">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-7 rounded-3xl border border-white/5 bg-slate-900/40 p-6 shadow-2xl backdrop-blur-md flex flex-col h-[550px] justify-between"
+          >
             <div className="flex items-center gap-2 pb-4 border-b border-white/5 mb-4">
               <MessageCircle className="h-5 w-5 text-teal-400" />
               <h3 className="font-bold text-white text-base">Neural Agent Chat</h3>
@@ -228,10 +233,15 @@ export default function AIAssistantPage() {
                 <Send className="h-4 w-4" />
               </button>
             </form>
-          </div>
+          </motion.div>
 
           {/* Right: Price predictor tool */}
-          <div className="lg:col-span-5 rounded-3xl border border-white/5 bg-slate-900/40 p-6 shadow-2xl backdrop-blur-md space-y-6">
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="lg:col-span-5 rounded-3xl border border-white/5 bg-slate-900/40 p-6 shadow-2xl backdrop-blur-md space-y-6"
+          >
             <div className="flex items-center gap-2 pb-4 border-b border-white/5">
               <TrendingUp className="h-5 w-5 text-lime-400" />
               <h3 className="font-bold text-white text-base">Crop Spot Price Predictor</h3>
@@ -317,7 +327,7 @@ export default function AIAssistantPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
       </main>
     </>

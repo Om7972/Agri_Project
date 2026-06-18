@@ -26,12 +26,13 @@ async function main() {
 
   console.log('Seeding Users and Profiles...');
   const passwordHash = await bcrypt.hash('password123', 10);
+  const adminPasswordHash = await bcrypt.hash('Admin@123', 10);
 
   // 1. Admin
   const admin = await prisma.user.create({
     data: {
       email: process.env.ADMIN_EMAIL || 'admin@mandiprime.com',
-      passwordHash,
+      passwordHash: adminPasswordHash,
       role: Role.ADMIN,
       profile: {
         create: {

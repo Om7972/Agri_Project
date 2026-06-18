@@ -229,57 +229,68 @@ export default function LogisticsPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {bookings.map((booking) => (
-                  <motion.div
-                    key={booking.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="rounded-3xl border border-white/5 bg-slate-900/40 p-6 shadow-2xl backdrop-blur-md hover:border-white/10 transition-all duration-300 space-y-4"
-                  >
-                    {/* Header */}
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400">
-                          <Truck className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-white text-base leading-none">{booking.vehicleNumber}</h4>
-                          <span className="text-[10px] text-slate-500 font-mono mt-1 block">DRIVER: {booking.driverName} ({booking.driverPhone})</span>
-                        </div>
-                      </div>
-                      <span className="text-[10px] bg-teal-500/10 text-teal-400 font-bold font-mono uppercase px-2.5 py-1 rounded">
-                        {booking.status}
-                      </span>
-                    </div>
+                {bookings.map((booking, idx) => {
+                  const initials = booking.driverName
+                    ? booking.driverName.split(' ').map((n) => n[0]).join('').toUpperCase().substring(0, 2)
+                    : 'DR';
+                  const statusColor = booking.status === 'IN_TRANSIT' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                                      booking.status === 'DELIVERED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                      'bg-teal-500/10 text-teal-400 border-teal-500/20';
 
-                    {/* Routing Map visual */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Left: Path details */}
-                      <div className="bg-white/[0.01] border border-white/5 p-4 rounded-2xl text-xs font-mono space-y-2 text-slate-300">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5 text-teal-400" />
-                          <span>Origin: {booking.origin}</span>
+                  return (
+                    <motion.div
+                      key={booking.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-20px" }}
+                      transition={{ delay: idx * 0.08, duration: 0.4 }}
+                      className="rounded-3xl border border-white/5 bg-slate-900/40 p-6 shadow-2xl backdrop-blur-md hover:border-white/10 hover:bg-slate-900/60 transition-all duration-300 space-y-4"
+                    >
+                      {/* Header */}
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400 font-bold text-xs font-sans shrink-0">
+                            {initials}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-white text-base leading-none">{booking.vehicleNumber}</h4>
+                            <span className="text-[10px] text-slate-500 font-mono mt-1.5 block">DRIVER: {booking.driverName} ({booking.driverPhone})</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5 text-lime-400" />
-                          <span>Destination: {booking.destination}</span>
-                        </div>
+                        <span className={`text-[10px] font-bold font-mono uppercase px-2.5 py-1 rounded-full border ${statusColor}`}>
+                          {booking.status}
+                        </span>
                       </div>
 
-                      {/* Right: GPS Telemetry mock map */}
-                      <div className="bg-slate-950/60 border border-white/5 p-4 rounded-2xl flex flex-col justify-center items-center text-xs font-mono relative overflow-hidden h-28">
-                        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:14px_14px] pointer-events-none" />
-                        <Navigation2 className="h-5 w-5 text-teal-400 animate-bounce mb-2 relative z-10" />
-                        <div className="text-center relative z-10">
-                          <span className="text-[10px] text-slate-500 block">LIVE TELEMETRY COORDINATES</span>
-                          <span className="text-white font-bold">{booking.latitude || 28.6139}, {booking.longitude || 77.2090}</span>
+                      {/* Routing Map visual */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Left: Path details */}
+                        <div className="bg-white/[0.01] border border-white/5 p-4 rounded-2xl text-xs font-mono space-y-2.5 text-slate-300">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5 text-teal-400 shrink-0" />
+                            <span className="truncate">Origin: {booking.origin}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5 text-lime-400 shrink-0" />
+                            <span className="truncate">Destination: {booking.destination}</span>
+                          </div>
+                        </div>
+
+                        {/* Right: GPS Telemetry mock map */}
+                        <div className="bg-slate-950/60 border border-white/5 p-4 rounded-2xl flex flex-col justify-center items-center text-xs font-mono relative overflow-hidden h-28">
+                          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:14px_14px] pointer-events-none" />
+                          <Navigation2 className="h-5 w-5 text-teal-400 animate-bounce mb-2 relative z-10" />
+                          <div className="text-center relative z-10">
+                            <span className="text-[10px] text-slate-500 block">LIVE TELEMETRY COORDINATES</span>
+                            <span className="text-white font-bold">{booking.latitude || 28.6139}, {booking.longitude || 77.2090}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
                 {bookings.length === 0 && (
-                  <div className="text-center py-12 text-slate-500 text-sm">No trucks dispatched on active channels.</div>
+                  <div className="text-center py-12 text-slate-500 text-sm italic">No trucks dispatched on active channels.</div>
                 )}
               </div>
             )}

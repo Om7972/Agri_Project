@@ -532,10 +532,17 @@ export default function InnovativeHubPage() {
         </div>
 
         {/* Active Tab Screen */}
-        <div className="bg-slate-900/20 border border-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
-          
-          {/* TAB 1: Verification Flow */}
-          {activeTab === 'verification' && (
+        <div className="bg-slate-900/20 border border-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+            >
+              {/* TAB 1: Verification Flow */}
+              {activeTab === 'verification' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
@@ -1549,7 +1556,8 @@ export default function InnovativeHubPage() {
               )}
             </div>
           )}
-
+            </motion.div>
+          </AnimatePresence>
         </div>
 
       </main>

@@ -228,37 +228,41 @@ export default function ChatPage() {
                 No active bargains initiated. Start negotiating crop pricing from the marketplace.
               </div>
             ) : (
-              negotiations.map((neg) => {
+              negotiations.map((neg, idx) => {
                 const isSelected = selectedNeg?.id === neg.id;
                 const counterParty = user?.id === neg.buyerId ? neg.product.seller : neg.buyer;
                 const counterPartyEmail = counterParty?.email || 'Counterparty';
                 return (
-                  <div
+                  <motion.div
                     key={neg.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05, duration: 0.3 }}
                     onClick={() => setSelectedNeg(neg)}
-                    className={`p-4 cursor-pointer hover:bg-white/[0.02] transition-colors ${
+                    className={`p-4 cursor-pointer hover:bg-white/[0.02] transition-colors border-b border-white/5 relative ${
                       isSelected ? 'bg-teal-500/10 border-l-4 border-teal-500' : ''
                     }`}
                   >
-                    <div className="flex justify-between items-start mb-1">
+                    <div className="flex justify-between items-start mb-1.5">
                       <span className="text-xs text-teal-400 font-bold font-mono">
                         {neg.product.cropType} ({neg.product.grade})
                       </span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                        neg.status === 'ACCEPTED' ? 'bg-lime-500/20 text-lime-400' :
-                        neg.status === 'REJECTED' ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-slate-400'
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                        neg.status === 'ACCEPTED' ? 'bg-lime-500/10 text-lime-400 border-lime-500/25' :
+                        neg.status === 'REJECTED' ? 'bg-red-500/10 text-red-400 border-red-500/25' : 
+                        'bg-slate-800/50 text-slate-400 border-slate-700/50'
                       }`}>
                         {neg.status}
                       </span>
                     </div>
-                    <strong className="text-xs text-white block truncate">{neg.product.title}</strong>
+                    <strong className="text-xs text-white block truncate font-sans">{neg.product.title}</strong>
                     <span className="text-[10px] text-slate-500 block truncate mt-1">
                       Partner: {counterPartyEmail}
                     </span>
-                    <span className="text-[10px] text-teal-400 font-mono block mt-0.5">
+                    <span className="text-[10px] text-teal-400 font-mono block mt-1">
                       Bargain Price: {currencySymbol}{neg.targetPrice}
                     </span>
-                  </div>
+                  </motion.div>
                 );
               })
             )}

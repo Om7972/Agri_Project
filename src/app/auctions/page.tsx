@@ -176,13 +176,15 @@ export default function AuctionsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {auctions.map((auction) => {
+            {auctions.map((auction, idx) => {
               const currentPrice = (auction.bids && auction.bids.length > 0) ? auction.bids[0].bidAmount : auction.startPrice;
               return (
                 <motion.div
                   key={auction.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-20px" }}
+                  transition={{ delay: idx * 0.1, duration: 0.4 }}
                   className="rounded-3xl border border-white/5 bg-slate-900/40 p-8 shadow-2xl backdrop-blur-md hover:border-white/10 transition-all duration-300 flex flex-col justify-between"
                 >
                   <div className="space-y-6">

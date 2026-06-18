@@ -182,26 +182,57 @@ export default function AdminPanelPage() {
                 <Users className="h-5 w-5 text-teal-400" />
                 RBAC Role Config
               </h3>
-              <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                {users.map(u => (
-                  <div key={u.id} className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2 text-xs font-mono text-slate-300">
-                    <div className="flex justify-between items-center">
-                      <span className="text-white font-bold block truncate max-w-[150px]">{u.profile?.fullName || u.email}</span>
-                      <select
-                        title="Select User Role"
-                        value={u.role}
-                        onChange={(e) => handleUpdateRole(u.id, e.target.value)}
-                        className="bg-slate-950 border border-white/10 rounded px-2 py-0.5 text-[10px] text-teal-400 focus:outline-none"
-                      >
-                        <option value="FARMER">FARMER</option>
-                        <option value="BUYER">BUYER</option>
-                        <option value="EXPORTER">EXPORTER</option>
-                        <option value="ADMIN">ADMIN</option>
-                      </select>
-                    </div>
-                    <span className="text-[10px] text-slate-500 block">{u.email}</span>
-                  </div>
-                ))}
+              <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                {users.map((u, idx) => {
+                  const initials = (u.profile?.fullName || u.email).substring(0, 2).toUpperCase();
+                  const avatarColor = u.role === 'ADMIN' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                      u.role === 'FARMER' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                                      u.role === 'EXPORTER' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                                      'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                  
+                  return (
+                    <motion.div
+                      key={u.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="p-4 rounded-2xl bg-slate-900/60 border border-white/5 space-y-3 hover:border-white/10 hover:bg-slate-900/80 transition-all duration-300"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`h-9 w-9 rounded-xl border flex items-center justify-center text-xs font-bold font-sans shrink-0 ${avatarColor}`}>
+                          {initials}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-white font-bold text-xs truncate block">{u.profile?.fullName || u.email}</span>
+                          <span className="text-[10px] text-slate-500 truncate block font-mono">{u.email}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2.5 border-t border-white/5">
+                        <span className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded-full border ${
+                          u.role === 'ADMIN' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                          u.role === 'FARMER' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                          u.role === 'EXPORTER' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                          'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                        }`}>
+                          {u.role}
+                        </span>
+
+                        <select
+                          title="Select User Role"
+                          value={u.role}
+                          onChange={(e) => handleUpdateRole(u.id, e.target.value)}
+                          className="bg-slate-950 border border-white/10 rounded-lg px-2.5 py-1 text-[10px] text-teal-400 focus:border-teal-500/50 focus:outline-none transition-colors cursor-pointer"
+                        >
+                          <option value="FARMER">FARMER</option>
+                          <option value="BUYER">BUYER</option>
+                          <option value="EXPORTER">EXPORTER</option>
+                          <option value="ADMIN">ADMIN</option>
+                        </select>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
 
@@ -211,35 +242,54 @@ export default function AdminPanelPage() {
                 <FileCheck className="h-5 w-5 text-lime-400" />
                 Compliance Clearance
               </h3>
-              <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                {docs.map(doc => (
-                  <div key={doc.id} className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3 text-xs font-mono text-slate-300">
-                    <div>
-                      <span className="text-white font-bold block">{doc.documentType}</span>
-                      <span className="text-[10px] text-slate-500 block">SHIPMENT: {doc.shipment.trackingNumber}</span>
+              <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                {docs.map((doc, idx) => (
+                  <motion.div
+                    key={doc.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="p-4 rounded-2xl bg-slate-900/60 border border-white/5 space-y-3 hover:border-white/10 hover:bg-slate-900/80 transition-all duration-300"
+                  >
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <span className="text-white font-bold text-xs block">{doc.documentType}</span>
+                        <span className="text-[10px] text-slate-500 block font-mono mt-0.5">SHIPMENT: {doc.shipment.trackingNumber}</span>
+                      </div>
+                      <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        {doc.status}
+                      </span>
                     </div>
-                    <div className="flex justify-between items-center pt-1">
-                      <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="text-teal-400 underline text-[10px]">View Document</a>
-                      <div className="flex gap-2">
+
+                    <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                      <a
+                        href={doc.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-teal-400 hover:text-teal-300 font-semibold transition-colors text-[10px] underline decoration-teal-500/30 underline-offset-4"
+                      >
+                        View Certificate Document
+                      </a>
+                      <div className="flex gap-1.5">
                         <button
                           title="Approve Document"
                           aria-label="Approve Document"
                           onClick={() => handleVerifyDoc(doc.id, 'APPROVED')}
-                          className="p-1 rounded bg-lime-500/10 text-lime-400 hover:bg-lime-500/25 active:scale-95 transition-all"
+                          className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20 active:scale-95 transition-all cursor-pointer"
                         >
-                          <Check className="h-4 w-4" />
+                          <Check className="h-3.5 w-3.5" />
                         </button>
                         <button
                           title="Reject Document"
                           aria-label="Reject Document"
                           onClick={() => handleVerifyDoc(doc.id, 'REJECTED')}
-                          className="p-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/25 active:scale-95 transition-all"
+                          className="p-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/25 hover:bg-red-500/20 active:scale-95 transition-all cursor-pointer"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
                 {docs.length === 0 && (
                   <div className="text-center py-12 text-slate-500 text-xs italic">Compliance queue is clear.</div>
@@ -253,16 +303,27 @@ export default function AdminPanelPage() {
                 <History className="h-5 w-5 text-amber-500" />
                 Audit Logs
               </h3>
-              <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                {auditLogs.map(log => (
-                  <div key={log.id} className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2 text-xs font-mono text-slate-300">
+              <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                {auditLogs.map((log, idx) => (
+                  <motion.div
+                    key={log.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="p-4 rounded-2xl bg-slate-900/60 border border-white/5 space-y-2.5 hover:border-white/10 hover:bg-slate-900/80 transition-all duration-300"
+                  >
                     <div className="flex justify-between items-start gap-2">
-                      <span className="text-white font-bold block truncate max-w-[120px]">{log.action}</span>
-                      <span className="text-[9px] text-slate-500 block">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-white font-bold text-xs block truncate max-w-[140px] tracking-tight">{log.action}</span>
+                      <span className="text-[9px] text-slate-500 block shrink-0 font-mono">
+                        {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 block leading-relaxed">{log.details}</span>
-                    <span className="text-[9px] text-slate-500 block">IP: {log.ipAddress || '127.0.0.1'}</span>
-                  </div>
+                    <p className="text-[10px] text-slate-400 leading-relaxed font-sans">{log.details}</p>
+                    <div className="flex justify-between items-center pt-2 border-t border-white/5 text-[9px] text-slate-500 font-mono">
+                      <span>IP: {log.ipAddress || '127.0.0.1'}</span>
+                      <span className="text-teal-500/80 font-semibold">{log.user?.email || 'SYSTEM'}</span>
+                    </div>
+                  </motion.div>
                 ))}
               </div>
             </div>

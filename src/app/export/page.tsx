@@ -261,12 +261,14 @@ export default function ExportHubPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {shipments.map((shipment) => (
+                  {shipments.map((shipment, idx) => (
                     <motion.div
                       key={shipment.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="rounded-3xl border border-white/5 bg-slate-900/40 p-6 shadow-2xl backdrop-blur-md hover:border-white/10 transition-all duration-300 space-y-4"
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-20px" }}
+                      transition={{ delay: idx * 0.08, duration: 0.4 }}
+                      className="rounded-3xl border border-white/5 bg-slate-900/40 p-6 shadow-2xl backdrop-blur-md hover:border-white/10 hover:bg-slate-900/60 transition-all duration-300 space-y-4"
                     >
                       {/* Booking Header */}
                       <div className="flex justify-between items-center gap-4">

@@ -82,9 +82,12 @@ export default function OrdersPage() {
       });
       const result = await response.json();
       if (response.ok) {
-        setOrders(result.data || []);
-        if (result.data.length > 0) {
-          setSelectedOrder(result.data[0]);
+        const validOrders = (result.data || []).filter((ord: any) => ord && ord.product);
+        setOrders(validOrders);
+        if (validOrders.length > 0) {
+          setSelectedOrder(validOrders[0]);
+        } else {
+          setSelectedOrder(null);
         }
       }
     } catch (err) {
@@ -209,39 +212,43 @@ export default function OrdersPage() {
                 No contracts or orders placed. Initiate purchase or list crops to start.
               </div>
             ) : (
-              orders.map((ord) => {
+              orders.map((ord, idx) => {
                 const isSelected = selectedOrder?.id === ord.id;
-                const isSeller = user?.id === ord.product.sellerId;
+                const isSeller = user?.id === ord.product?.sellerId;
                 return (
-                  <div
+                  <motion.div
                     key={ord.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05, duration: 0.3 }}
                     onClick={() => setSelectedOrder(ord)}
-                    className={`p-4 cursor-pointer hover:bg-white/[0.02] transition-colors ${
+                    className={`p-4 cursor-pointer hover:bg-white/[0.02] transition-colors border-b border-white/5 relative ${
                       isSelected ? 'bg-teal-500/10 border-l-4 border-teal-500' : ''
                     }`}
                   >
-                    <div className="flex justify-between items-start mb-1">
+                    <div className="flex justify-between items-start mb-1.5">
                       <span className="text-xs text-teal-400 font-bold font-mono">
-                        {ord.product.cropType}
+                        {ord.product?.cropType}
                       </span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                        ord.status === 'COMPLETED' ? 'bg-lime-500/20 text-lime-400' :
-                        ord.status === 'CANCELLED' ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-slate-400'
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                        ord.status === 'COMPLETED' ? 'bg-lime-500/10 text-lime-400 border-lime-500/25' :
+                        ord.status === 'CANCELLED' ? 'bg-red-500/10 text-red-400 border-red-500/25' : 
+                        'bg-slate-800/50 text-slate-400 border-slate-700/50'
                       }`}>
                         {ord.status}
                       </span>
                     </div>
-                    <strong className="text-xs text-white block truncate">{ord.product.title}</strong>
-                    <div className="flex justify-between items-center text-[10px] text-slate-500 mt-2 font-mono">
-                      <span>QTY: {ord.quantity} {ord.product.unit}s</span>
+                    <strong className="text-xs text-white block truncate font-sans">{ord.product?.title}</strong>
+                    <div className="flex justify-between items-center text-[10px] text-slate-500 mt-2.5 font-mono">
+                      <span>QTY: {ord.quantity} {ord.product?.unit}s</span>
                       <span className="text-white font-bold">
                         {currencySymbol}{ord.totalPrice}
                       </span>
                     </div>
-                    <span className="inline-block text-[8px] font-bold uppercase tracking-wider bg-white/5 text-slate-400 px-1 rounded mt-1 font-mono">
+                    <span className="inline-block text-[8px] font-bold uppercase tracking-wider bg-white/5 text-slate-400 px-2 py-0.5 rounded-md mt-2 font-mono border border-white/5">
                       ROLE: {isSeller ? 'SELLER (PRODUCER)' : 'BUYER (TRADER)'}
                     </span>
-                  </div>
+                  </motion.div>
                 );
               })
             )}
@@ -257,10 +264,10 @@ export default function OrdersPage() {
               <div className="p-6 border-b border-white/5 bg-slate-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1.5">
                   <span className="text-xs text-slate-500 font-mono">ORDER ID: {selectedOrder.id}</span>
-                  <h3 className="font-bold text-lg text-white">{selectedOrder.product.title}</h3>
+                  <h3 className="font-bold text-lg text-white">{selectedOrder.product?.title}</h3>
                   <div className="flex items-center gap-4 text-xs text-slate-400 font-mono">
                     <span>Agreed Price: {currencySymbol}{selectedOrder.totalPrice}</span>
-                    <span>Quantity: {selectedOrder.quantity} {selectedOrder.product.unit}s</span>
+                    <span>Quantity: {selectedOrder.quantity} {selectedOrder.product?.unit}s</span>
                   </div>
                 </div>
 

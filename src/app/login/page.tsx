@@ -9,11 +9,12 @@ import { Landmark, Mail, Lock, ArrowRight, Loader2, AlertCircle, Eye, EyeOff } f
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loading, error, clearError, user } = useAuthStore();
+  const { login, loginWithNeon, loading, error, clearError, user } = useAuthStore();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [useNeonAuth, setUseNeonAuth] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Redirect if already logged in
@@ -40,14 +41,17 @@ export default function LoginPage() {
       return;
     }
 
-    const success = await login(email, password);
+    const success = useNeonAuth 
+      ? await loginWithNeon(email, password)
+      : await login(email, password);
+      
     if (success) {
       router.push('/');
     }
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col justify-center items-center px-4 bg-slate-950 text-white overflow-hidden">
+    <div className="relative min-h-screen flex flex-col justify-center items-center px-4 bg-slate-950 text-white overflow-hidden font-sans">
       {/* Decorative Orbs */}
       <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] rounded-full bg-teal-500/5 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-lime-500/5 blur-[100px] pointer-events-none" />
@@ -81,6 +85,32 @@ export default function LoginPage() {
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-teal-500/0 via-teal-500/0 to-teal-500/5 opacity-30 pointer-events-none" />
           
           <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+            {/* Login Method Toggle */}
+            <div className="grid grid-cols-2 gap-2 p-1.5 rounded-xl bg-slate-950/80 border border-white/5 mb-4">
+              <button
+                type="button"
+                onClick={() => setUseNeonAuth(false)}
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+                  !useNeonAuth
+                    ? 'bg-gradient-to-r from-teal-500 to-lime-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Standard Node API
+              </button>
+              <button
+                type="button"
+                onClick={() => setUseNeonAuth(true)}
+                className={`py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+                  useNeonAuth
+                    ? 'bg-gradient-to-r from-teal-500 to-lime-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Neon Secure Auth
+              </button>
+            </div>
+
             {/* Display Errors */}
             {(error || validationError) && (
               <motion.div

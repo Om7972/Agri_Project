@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { neonAuth } from '@/lib/neonAuth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -35,7 +36,9 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
+  loginWithNeon: (email: string, password: string) => Promise<boolean>;
   register: (payload: RegisterPayload) => Promise<boolean>;
+  registerWithNeon: (payload: RegisterPayload) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
 }
@@ -93,6 +96,51 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      loginWithNeon: async (email, password) => {
+        set({ loading: true, error: null });
+        try {
+          const result = await neonAuth.signIn.email({
+            email,
+            password,
+          });
+
+          if (result.error) {
+            throw new Error(result.error.message || 'Neon authentication failed.');
+          }
+
+          const userObj = result.data?.user;
+          if (!userObj) {
+            throw new Error('No user data returned from Neon Auth.');
+          }
+
+          const mockAccessToken = 'neon_session_' + Math.random().toString(36).substring(2);
+          const mockRefreshToken = 'neon_refresh_' + Math.random().toString(36).substring(2);
+
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('mandiprime_token', mockAccessToken);
+            localStorage.setItem('mandiprime_refresh_token', mockRefreshToken);
+          }
+
+          // Assign ADMIN role to admin email, default BUYER for others
+          const assignedRole = (userObj.email.toLowerCase() === 'odhumkekar@gmail.com' ? 'ADMIN' : 'BUYER') as UserRole;
+
+          set({
+            user: { id: userObj.id, email: userObj.email, role: assignedRole, fullName: userObj.name || undefined },
+            accessToken: mockAccessToken,
+            refreshToken: mockRefreshToken,
+            error: null,
+          });
+
+          return true;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'An error occurred during Neon login.';
+          set({ error: message });
+          return false;
+        } finally {
+          set({ loading: false });
+        }
+      },
+
       register: async (payload: RegisterPayload) => {
         set({ loading: true, error: null });
         try {
@@ -127,6 +175,54 @@ export const useAuthStore = create<AuthState>()(
           return true;
         } catch (err) {
           const message = err instanceof Error ? err.message : 'An error occurred during registration.';
+          set({ error: message });
+          return false;
+        } finally {
+          set({ loading: false });
+        }
+      },
+
+      registerWithNeon: async (payload: RegisterPayload) => {
+        set({ loading: true, error: null });
+        try {
+          const result = await neonAuth.signUp.email({
+            email: payload.email,
+            password: payload.password || 'password123',
+            name: payload.fullName || '',
+          });
+
+          if (result.error) {
+            throw new Error(result.error.message || 'Neon registration failed.');
+          }
+
+          const userObj = result.data?.user;
+          if (!userObj) {
+            throw new Error('No user data returned from Neon Auth registration.');
+          }
+
+          const mockAccessToken = 'neon_session_' + Math.random().toString(36).substring(2);
+          const mockRefreshToken = 'neon_refresh_' + Math.random().toString(36).substring(2);
+
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('mandiprime_token', mockAccessToken);
+            localStorage.setItem('mandiprime_refresh_token', mockRefreshToken);
+          }
+
+          set({
+            user: {
+              id: userObj.id,
+              email: userObj.email,
+              role: payload.role,
+              fullName: userObj.name || undefined,
+            },
+            accessToken: mockAccessToken,
+            refreshToken: mockRefreshToken,
+            error: null,
+          });
+
+          return true;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'An error occurred during Neon registration.';
           set({ error: message });
           return false;
         } finally {

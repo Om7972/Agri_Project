@@ -608,13 +608,15 @@ export default function MarketplacePage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products.map((product) => {
+                  {products.map((product, idx) => {
                     const trustScore = product.seller?.trustScore || 80;
                     return (
                       <motion.div
                         key={product.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-40px" }}
+                        transition={{ duration: 0.4, delay: (idx % 3) * 0.08 }}
                         className="flex flex-col rounded-2xl border border-white/5 bg-slate-900/30 overflow-hidden hover:border-teal-500/20 hover:shadow-lg transition-all duration-300"
                       >
                         <div className="h-40 relative overflow-hidden bg-slate-950">
