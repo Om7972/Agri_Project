@@ -949,3 +949,153 @@ model TradeFinanceApplication {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
+
+// ==================== REVERSE AUCTION ====================
+model ReverseAuction {
+  id              String         @id @default(uuid())
+  buyerId         String
+  cropType        String
+  quantityTons    Float
+  maxPricePerTon  Float
+  deliveryLocation String
+  deadline        DateTime
+  status          String         @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  bids            ReverseBid[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model ReverseBid {
+  id              String         @id @default(uuid())
+  auctionId       String
+  auction         ReverseAuction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  farmerId        String
+  pricePerTon     Float
+  deliveryDays    Int
+  trustScore      Float          @default(80.0)
+  status          String         @default("PENDING") // PENDING, WINNER, REJECTED
+  createdAt       DateTime       @default(now())
+}
+
+// ==================== CROP COMMUNITY ====================
+model CommunityPost {
+  id              String             @id @default(uuid())
+  communityName   String // Onion, Cotton, Wheat, etc.
+  userId          String
+  userEmail       String
+  content         String
+  imageUrl        String?
+  language        String             @default("EN") // EN, HI, etc.
+  likesCount      Int                @default(0)
+  comments        CommunityComment[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model CommunityComment {
+  id              String        @id @default(uuid())
+  postId          String
+  post            CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId          String
+  userEmail       String
+  content         String
+  createdAt       DateTime      @default(now())
+}
+
+// ==================== AGRICULTURAL EVENTS ====================
+model AgriEvent {
+  id              String              @id @default(uuid())
+  title           String
+  description     String
+  type            String // EXPO, FAIR, WEBINAR
+  date            DateTime
+  location        String // Physical location or Link
+  bannerUrl       String?
+  registrations   EventRegistration[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model EventRegistration {
+  id              String    @id @default(uuid())
+  eventId         String
+  event           AgriEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId          String
+  userEmail       String
+  ticketCode      String    @unique
+  createdAt       DateTime  @default(now())
+}
+
+// ==================== WAREHOUSE RECEIPT SYSTEM ====================
+model WarehouseReceipt {
+  id              String   @id @default(uuid())
+  receiptNumber   String   @unique
+  warehouseId     String
+  farmerId        String
+  farmerEmail     String
+  cropType        String
+  quantityTons    Float
+  grade           String
+  depositDate     DateTime @default(now())
+  storageDurationDays Int
+  status          String   @default("STORED") // STORED, RELEASE_REQUESTED, RELEASED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ==================== COOPERATIVE GROUPS ====================
+model CooperativeGroup {
+  id              String              @id @default(uuid())
+  name            String              @unique
+  description     String?
+  leaderId        String
+  leaderEmail     String
+  members         CooperativeMember[]
+  sharedInventory CooperativeInventory[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model CooperativeMember {
+  id              String           @id @default(uuid())
+  groupId         String
+  group           CooperativeGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  farmerId        String
+  farmerEmail     String
+  joinedAt        DateTime         @default(now())
+}
+
+model CooperativeInventory {
+  id              String           @id @default(uuid())
+  groupId         String
+  group           CooperativeGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  cropType        String
+  quantityTons    Float
+  grade           String
+  pricePerTon     Float
+  createdAt       DateTime         @default(now())
+}
+
+// ==================== REFERRAL PROGRAM ====================
+model Referral {
+  id              String   @id @default(uuid())
+  referrerId      String
+  referrerEmail   String
+  referralCode    String   @unique
+  referredId      String?  @unique
+  referredEmail   String?
+  rewardPoints    Int      @default(0)
+  status          String   @default("PENDING") // PENDING, COMPLETED
+  createdAt       DateTime @default(now())
+}
+
+// ==================== NOTIFICATION PREFERENCES ====================
+model NotificationPreference {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  email           Boolean  @default(true)
+  sms             Boolean  @default(false)
+  whatsapp        Boolean  @default(false)
+  push            Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}

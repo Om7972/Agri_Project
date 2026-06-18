@@ -18,6 +18,7 @@ import disputeRoutes from './dispute.routes';
 import crmRoutes from './crm.routes';
 import documentRoutes from './document.routes';
 import systemRoutes from './system.routes';
+import newfeaturesRoutes from './newfeatures.routes';
 
 const router = Router();
 
@@ -40,5 +41,6 @@ router.use('/disputes', disputeRoutes);
 router.use('/crm', crmRoutes);
 router.use('/documents', documentRoutes);
 router.use('/system', systemRoutes);
+router.use('/new-features', newfeaturesRoutes);
 
 export default router;

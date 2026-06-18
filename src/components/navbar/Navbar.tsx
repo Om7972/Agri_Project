@@ -30,6 +30,7 @@ export default function Navbar() {
         { name: 'Innovation Hub', href: '/innovative' },
         { name: 'Analytics', href: '/analytics' },
         { name: 'AI Assistant', href: '/ai-assistant' },
+        { name: 'Ecosystem Hub', href: '/ecosystem' },
         ...(user.role === 'ADMIN' ? [{ name: 'Admin Panel', href: '/admin' }] : []),
       ]
     : [
