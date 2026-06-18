@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
 import { Ship, UploadCloud, MapPin, Landmark, FileText, CheckCircle, Plus, Layers, ArrowRight } from 'lucide-react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+import { API_BASE_URL } from '@/lib/config';
 
 interface ShipmentItem {
   id: string;

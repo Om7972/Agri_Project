@@ -34,7 +34,7 @@ interface BulkRequirement { id: string; cropType: string; quantityTons: number; 
 interface FinanceApp { id: string; type: string; amount: number; status: string; createdAt: string; collateralDetails?: string; }
 interface DirectContact { fullName?: string; phone?: string; email?: string; address?: string; verificationBadge?: string; aadharVerified?: boolean; gstVerified?: boolean; businessCertVerified?: boolean; }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+import { API_BASE_URL } from '@/lib/config';
 
 export default function InnovativeHubPage() {
   const { user, accessToken } = useAuthStore();

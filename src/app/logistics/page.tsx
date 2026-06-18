@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
 import { Truck, MapPin, Navigation, User, Phone, CheckCircle, Plus, Layers, Navigation2 } from 'lucide-react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+import { API_BASE_URL } from '@/lib/config';
 
 interface BookingItem {
   id: string;

@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { TrendingUp, BarChart3, LineChart, PieChart, Landmark, ShoppingBag, ArrowUpRight, DollarSign } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, BarChart, Bar } from 'recharts';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+import { API_BASE_URL } from '@/lib/config';
 
 interface AnalyticsData {
   revenueData: { month: string; amount: number }[];

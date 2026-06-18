@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { neonAuth } from '@/lib/neonAuth';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+import { API_BASE_URL } from '@/lib/config';
 
 export type UserRole = 'FARMER' | 'BUYER' | 'EXPORTER' | 'ADMIN';
 

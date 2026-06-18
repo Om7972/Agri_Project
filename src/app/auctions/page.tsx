@@ -8,8 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, Landmark, DollarSign, Clock, Users, ArrowUpRight, TrendingUp, CheckCircle } from 'lucide-react';
 import { io } from 'socket.io-client';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-const SOCKET_URL = 'http://localhost:5000';
+import { API_BASE_URL } from '@/lib/config';
+const SOCKET_URL = API_BASE_URL.replace('/api/v1', '');
 
 interface AuctionItem {
   id: string;
